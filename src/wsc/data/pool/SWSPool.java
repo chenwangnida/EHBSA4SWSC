@@ -148,14 +148,14 @@ public class SWSPool {
 	 * find a single service that can be applied now and update the output list and
 	 * delete the service
 	 *
-	 * @param outputSet
+	 * @param inputSet
 	 */
-	public Service findPossibleService(HashSet<String> outputSet) {
+	public Service findPossibleService(HashSet<String> inputSet) {
 		int foundServiceIndex = -1;
 		for (int i = 0; i < this.serviceList.size(); i++) {
 			Service service = this.serviceList.get(i);
 
-			if (service.searchServiceMatchFromInputSet(this.semantics, outputSet)) {
+			if (service.searchServiceMatchFromInputSet(this.semantics, inputSet)) {
 				foundServiceIndex = i;
 				break;
 			}
@@ -168,8 +168,8 @@ public class SWSPool {
 		this.serviceList.remove(foundServiceIndex);
 		for (ServiceOutput output : service.getOutputList()) {
 
-			if (!outputSet.contains(output.getOutput())) {
-				outputSet.add(output.getOutput());
+			if (!inputSet.contains(output.getOutput())) {
+				inputSet.add(output.getOutput());
 			}
 		}
 		return service;

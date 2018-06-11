@@ -20,61 +20,32 @@ public class WSCGraph {
 	 * @return graph
 	 */
 
-	// public ServiceGraph generateGraph() {
-	//
-	// ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
-	//
-	// WSCInitializer.initialWSCPool.createGraphService(WSCInitializer.taskInput,
-	// WSCInitializer.taskOutput, graph);
-	//
-	// while (true) {
-	// List<String> dangleVerticeList = dangleVerticeList(graph);
-	// if (dangleVerticeList.size() == 0) {
-	// break;
-	// }
-	// removeCurrentdangle(graph, dangleVerticeList);
-	// }
-	// graph.removeEdge("startNode", "endNode");
-	// // System.out.println("original DAG:"+graph.toString());
-	//// optimiseGraph(graph);
-	// // System.out.println("optimised DAG:"+graph.toString());
-	//
-	// return graph;
-	// }
+//	public ServiceGraph generateGraph() {
+//
+//		ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
+//
+//		WSCInitializer.initialWSCPool.createGraphService(WSCInitializer.taskInput, WSCInitializer.taskOutput, graph);
+//
+//		while (true) {
+//			List<String> dangleVerticeList = dangleVerticeList(graph);
+//			if (dangleVerticeList.size() == 0) {
+//				break;
+//			}
+//			removeCurrentdangle(graph, dangleVerticeList);
+//		}
+//		graph.removeEdge("startNode", "endNode");
+//		// System.out.println("original DAG:"+graph.toString());
+////		optimiseGraph(graph);
+//		// System.out.println("optimised DAG:"+graph.toString());
+//
+//		return graph;
+//	}
 	
-	/**
-	 * Generate service dependency graph from relevant services
-	 *
-	 * @param filepath
-	 * @return semantics
-	 */
-	public ServiceGraph generateSDG() {
-		ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
-		
-		WSCInitializer.initialWSCPool.createSDGBySerQueue(WSCInitializer.taskInput, WSCInitializer.taskOutput,
-				graph);
-
-		while (true) {
-			List<String> dangleVerticeList = dangleVerticeList(graph);
-			if (dangleVerticeList.size() == 0) {
-				break;
-			}
-			removeCurrentdangle(graph, dangleVerticeList);
-		}
-		graph.removeEdge("startNode", "endNode");
-		// System.out.println("original DAG:"+graph.toString());
-		// optimiseGraph(graph);
-		// System.out.println("optimised DAG:"+graph.toString());
-
-		return graph;
-	}
-
 	public ServiceGraph generateGraph(List<Integer> usedSerQueue) {
 
 		ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
 
-		WSCInitializer.initialWSCPool.createGraphService(WSCInitializer.taskInput, WSCInitializer.taskOutput, graph,
-				usedSerQueue);
+		WSCInitializer.initialWSCPool.createGraphService(WSCInitializer.taskInput, WSCInitializer.taskOutput, graph, usedSerQueue);
 
 		while (true) {
 			List<String> dangleVerticeList = dangleVerticeList(graph);
@@ -85,12 +56,34 @@ public class WSCGraph {
 		}
 		graph.removeEdge("startNode", "endNode");
 		// System.out.println("original DAG:"+graph.toString());
-		// optimiseGraph(graph);
+//		optimiseGraph(graph);
 		// System.out.println("optimised DAG:"+graph.toString());
 
 		return graph;
 	}
 
+//	public ServiceGraph generateGraphBySerQueue(List<Integer> usedSerQueue) {
+//
+//		ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
+//
+//		WSCInitializer.initialWSCPool.createGraphServiceBySerQueue(WSCInitializer.taskInput, WSCInitializer.taskOutput,
+//				graph, usedSerQueue);
+//
+//		while (true) {
+//			List<String> dangleVerticeList = dangleVerticeList(graph);
+//			if (dangleVerticeList.size() == 0) {
+//				break;
+//			}
+//			removeCurrentdangle(graph, dangleVerticeList);
+//		}
+//		graph.removeEdge("startNode", "endNode");
+//		// System.out.println("original DAG:"+graph.toString());
+////		optimiseGraph(graph);
+//		// System.out.println("optimised DAG:"+graph.toString());
+//
+//		return graph;
+//	}
+	
 	public ServiceGraph generateGraphBySerQueue() {
 
 		ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
@@ -153,49 +146,47 @@ public class WSCGraph {
 	 * 
 	 * @param serviceGraph
 	 */
-	private void optimiseGraph(ServiceGraph graph) {
-		for (String vertice : graph.vertexSet()) {
-			if (graph.outDegreeOf(vertice) > 1) {
-				List<ServiceEdge> outgoingEdges = new ArrayList<ServiceEdge>();
-
-				outgoingEdges.addAll(graph.outgoingEdgesOf(vertice));
-
-				for (ServiceEdge outgoingedge : outgoingEdges) {
-					if (graph.getEdgeTarget(outgoingedge).equals("endNode")) {
-						// Remove the output node from the children list
-						outgoingEdges.remove(outgoingedge);
-						break;
-					}
-
-				}
-
-				if (outgoingEdges.size() > 1) {
-					// save the direct successors
-					Set<String> directSuccesors = new HashSet<String>();
-					Set<String> allTargets = new HashSet<String>();
-
-					outgoingEdges.forEach(outgoingedge -> directSuccesors.add(graph.getEdgeTarget(outgoingedge)));
-
-					for (String succesor : directSuccesors) {
-						Set<String> targets = GraphUtils.getOutgoingVertices(graph, succesor);
-						allTargets.addAll(targets);
-					}
-
-					for (String succesor : directSuccesors) {
-						if (allTargets.contains(succesor)) {
-							graph.removeEdge(vertice, succesor);
-						}
-					}
-				}
-			}
-		}
-	}
-
+//	private void optimiseGraph(ServiceGraph graph) {
+//		for (String vertice : graph.vertexSet()) {
+//			if (graph.outDegreeOf(vertice) > 1) {
+//				List<ServiceEdge> outgoingEdges = new ArrayList<ServiceEdge>();
+//
+//				outgoingEdges.addAll(graph.outgoingEdgesOf(vertice));
+//
+//				for (ServiceEdge outgoingedge : outgoingEdges) {
+//					if (graph.getEdgeTarget(outgoingedge).equals("endNode")) {
+//						// Remove the output node from the children list
+//						outgoingEdges.remove(outgoingedge);
+//						break;
+//					}
+//
+//				}
+//
+//				if (outgoingEdges.size() > 1) {
+//					// save the direct successors
+//					Set<String> directSuccesors = new HashSet<String>();
+//					Set<String> allTargets = new HashSet<String>();
+//
+//					outgoingEdges.forEach(outgoingedge -> directSuccesors.add(graph.getEdgeTarget(outgoingedge)));
+//
+//					for (String succesor : directSuccesors) {
+//						Set<String> targets = GraphUtils.getOutgoingVertices(graph, succesor);
+//						allTargets.addAll(targets);
+//					}
+//
+//					for (String succesor : directSuccesors) {
+//						if (allTargets.contains(succesor)) {
+//							graph.removeEdge(vertice, succesor);
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
 	/**
-	 * return all the elements of atomic services in the graph-based representation
+	 * return all the elements of atomic services in the graph-based representation 
 	 * 
-	 * @param sourceVertice,
-	 *            graph, and usedSerQueue
+	 * @param sourceVertice, graph, and usedSerQueue
 	 */
 	public List<Integer> usedQueueofLayers(String sourceVertice, ServiceGraph graph, List<Integer> usedSerQueue) {
 
