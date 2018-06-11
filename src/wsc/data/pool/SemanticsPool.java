@@ -12,8 +12,8 @@ import wsc.owl.bean.RDF;
 
 public class SemanticsPool {
 
-	private final HashMap<String, OWLClass> owlClassHashMap = new HashMap<String, OWLClass>();
-	private final HashMap<String, OWLInst> owlInstHashMap = new HashMap<String, OWLInst>();
+	public final HashMap<String, OWLClass> owlClassHashMap = new HashMap<String, OWLClass>();
+	public final HashMap<String, OWLInst> owlInstHashMap = new HashMap<String, OWLInst>();
 
 	public HashMap<String, OWLClass> getOwlClassHashMap() {
 		return this.owlClassHashMap;

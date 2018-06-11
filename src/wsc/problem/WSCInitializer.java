@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 
@@ -31,6 +33,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Table;
 
 import wsc.InitialWSCPool;
+import wsc.data.pool.SemanticsPool;
 import wsc.data.pool.Service;
 import wsc.graph.ServiceInput;
 import wsc.graph.ServiceOutput;
@@ -135,7 +138,7 @@ public class WSCInitializer {
 			// register web services associated related ontology
 			initialWSCPool = new InitialWSCPool(serviceFileName, taxonomyFileName);
 
-			// construct ontology tree structure
+			// construct Ontology tree structure
 			ontologyDAG = createOntologyDAG(initialWSCPool);
 
 			// Filter web services in repository
@@ -145,7 +148,10 @@ public class WSCInitializer {
 			e.printStackTrace();
 		}
 
-		dimension_size = WSCInitializer.initialWSCPool.getServiceSequence().size();
+		// label Ontology tree with relevant services
+		populateTaxonomyTree(initialWSCPool.getSemanticsPool());
+
+		dimension_size = WSCInitializer.initialWSCPool.getServiceSequence().size() + 2;
 		// population_size = dimension_size * 2;
 
 		// NHMIteration = (int) Math.floor(evalMax / population_size);
@@ -218,6 +224,48 @@ public class WSCInitializer {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Populates the taxonomy tree by associating services to the nodes in the tree.
+	 * 
+	 * @param semanticsPool
+	 */
+	private void populateTaxonomyTree(SemanticsPool semanticsPool) {
+		for (Service s : initialWSCPool.getServiceSequence()) {
+			addServiceToTaxonomyTree(s, semanticsPool);
+		}
+	}
+
+	private void addServiceToTaxonomyTree(Service s, SemanticsPool semanticsPool) {
+		// ontologyDAG
+
+		// Populate inputs
+		for (ServiceInput input : s.getInputList()) {
+			// find the relevant concepts of each input on ontology tree
+			OWLClass inputConceptClass = semanticsPool.owlClassHashMap
+					.get(semanticsPool.owlInstHashMap.get(input.getInput()).getRdfType().getResource().substring(1));
+			
+			ontologyDAG.
+			inputConceptClass.getID();
+			
+
+			// Also add input to all children nodes
+
+		}
+
+		// Populate outputs
+		for (ServiceOutput output : s.getOutputList()) {
+			// find the relevant concepts of each input on ontology tree
+			output.getOutput();
+
+			// Also add output to all parent nodes
+
+		}
+
+		return;
+	}
+	
+	
 
 	/**
 	 * Create a full Ontology tree with data loaded from initialSWSPool

@@ -13,6 +13,9 @@ import wsc.graph.GraphUtils;
 import wsc.graph.ServiceEdge;
 import wsc.graph.ServiceGraph;
 
+import org.jgrapht.*;
+
+
 public class WSCGraph {
 	/**
 	 * generate graph that remove all dangle nodes
@@ -216,5 +219,26 @@ public class WSCGraph {
 
 		return usedQueue;
 	}
+	
+	/**
+     * Find the immediate parents of every item in the given set, and return a set containing all
+     * those parents
+     *
+     * @param vertexSet the set of vertex to find parents of
+     *
+     * @return a set of every parent of every vertex passed in
+     */
+    private Set<V> allParents(Set<V> vertexSet)
+    {
+        HashSet<V> result = new HashSet<>();
+        for (V e : vertexSet) {
+            for (E edge : graph.incomingEdgesOf(e)) {
+                if (graph.getEdgeTarget(edge).equals(e)) {
+                    result.add(graph.getEdgeSource(edge));
+                }
+            }
+        }
+        return result;
+    }
 
 }
