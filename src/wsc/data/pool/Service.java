@@ -84,6 +84,14 @@ public class Service implements Comparable<Service> {
 	}
 
 
+	public int getServiceIndex() {
+		return serviceIndex;
+	}
+
+	public void setServiceIndex(int serviceIndex) {
+		this.serviceIndex = serviceIndex;
+	}
+
 	@Override
 	public int compareTo(Service o) {
 		if (score > o.score)

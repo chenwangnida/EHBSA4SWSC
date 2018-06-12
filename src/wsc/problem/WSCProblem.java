@@ -8,6 +8,7 @@ import java.util.Collections;
 
 import java.util.List;
 
+import ehbsa.EHBSA;
 import ehbsa.LocalSearch;
 import ehbsa.NHBSA;
 import wsc.InitialWSCPool;
@@ -29,18 +30,18 @@ public class WSCProblem {
 		WSCEvaluation eval = new WSCEvaluation();
 
 		WSCProblem p = new WSCProblem();
-		p.NHBSASolver(graGenerator, eval);
+		p.EHBSASolver(graGenerator, eval);
 
 	}
 
 	// The main entry to NHBSASolver.
-	public void NHBSASolver(WSCGraph graGenerator, WSCEvaluation eval) {
+	public void EHBSASolver(WSCGraph graGenerator, WSCEvaluation eval) {
 
 		long initialization = System.currentTimeMillis() - WSCInitializer.initialisationStartTime;
 
 		List<WSCIndividual> population = new ArrayList<WSCIndividual>();
 		// entry to NHBSA
-		NHBSA nhbsa = new NHBSA(WSCInitializer.population_size, WSCInitializer.dimension_size);
+		EHBSA ebsa = new EHBSA(WSCInitializer.dimension_size, WSCInitializer.dimension_size);
 
 		// random initalize one double size population solutions
 		while (population.size() < WSCInitializer.population_size * 2) {

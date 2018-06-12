@@ -156,10 +156,8 @@ public class WSCInitializer {
 		// label Ontology tree with relevant services
 		populateTaxonomyTree(initialWSCPool.getSemanticsPool());
 
+		// + 2 for start and End Service
 		dimension_size = WSCInitializer.initialWSCPool.getServiceSequence().size() + 2;
-		// population_size = dimension_size * 2;
-
-		// NHMIteration = (int) Math.floor(evalMax / population_size);
 
 		// construct matrix storing all semantic quality for query
 		semanticMatrix = HashBasedTable.create();
@@ -170,8 +168,9 @@ public class WSCInitializer {
 				+ "; all relevant service: " + initialWSCPool.getServiceSequence().size() + "; semanticMatrix: "
 				+ semanticMatrix.size());
 
-		MapServiceToQoS(initialWSCPool.getServiceSequence());
-		MapLayerSer2LayerIndex(initialWSCPool.getLayers());
+		// initialize all the Hashmaps additionally with start and end
+		initializeMaps(initialWSCPool.getServiceSequence());
+		// MapLayerSer2LayerIndex(initialWSCPool.getLayers());
 
 		calculateNormalisationBounds(initialWSCPool.getServiceSequence(),
 				initialWSCPool.getSemanticsPool().getOwlInstHashMap().size());
@@ -441,8 +440,28 @@ public class WSCInitializer {
 		return sim;
 	}
 
-	private void MapServiceToQoS(List<Service> serviceList) {
+	private void initializeMaps(List<Service> serviceList) {
 		int i = 0;
+
+		// create two special services Start and End into relevant services
+		List<ServiceOutput> startOutputs = new ArrayList<ServiceOutput>();
+		taskInput.forEach(taskinput -> startOutputs.add(new ServiceOutput(taskinput, "startNode", false)));
+
+		List<ServiceInput> endInputs = new ArrayList<ServiceInput>();
+		taskOutput.forEach(taskoutput -> endInputs.add(new ServiceInput(taskoutput, "startNode", false)));
+
+		Service startSer = new Service("startNode", null, null, startOutputs);
+		startSer.serviceIndex = 0;
+		
+		
+		Service endSer = new Service("endNode", null, endInputs, null);
+
+		serviceMap.put(startSer.getServiceID(), startSer);
+		serviceQoSMap.put(startSer.getServiceID(), startSer.getQos());
+		serviceIndexBiMap.put(i, startSer.getServiceID());
+		Index2ServiceMap.put(i, startSer);
+		i++;
+
 		for (Service service : serviceList) {
 			service.serviceIndex = i;
 			service.getInputList().forEach(input -> input.setServiceId(service.getServiceID()));
@@ -453,6 +472,12 @@ public class WSCInitializer {
 			Index2ServiceMap.put(i, service);
 			i += 1;
 		}
+		
+		endSer.serviceIndex = i;
+		serviceMap.put(endSer.getServiceID(), endSer);
+		serviceQoSMap.put(endSer.getServiceID(), endSer.getQos());
+		serviceIndexBiMap.put(i, endSer.getServiceID());
+		Index2ServiceMap.put(i, endSer);
 
 	}
 

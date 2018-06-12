@@ -18,5 +18,7 @@ public class TaxonomyNode {
 	public TaxonomyNode(String concept) {
 		this.concept = concept;
 	}
+	
+	
 
 }
