@@ -3,9 +3,13 @@ package wsc.problem;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+import org.jgrapht.graph.DefaultEdge;
+
 public class WSCIndividual implements Comparable<WSCIndividual> {
 
 	private String strRepresentation; // a string of graph-based representation
+	private DirectedAcyclicGraph<String, DefaultEdge> dagRepresentation;
 	private double availability;
 	private double reliability;
 	private double time;
@@ -14,10 +18,6 @@ public class WSCIndividual implements Comparable<WSCIndividual> {
 	private double semanticDistance;
 
 	public double fitness = 0.0; // The higher, the fitterSSSS
-	
-	private int splitPosition;
-	public List<Integer> serQueue = new ArrayList<Integer>(); // service Index arraylist
-	
 
 	@Override
 	public int compareTo(WSCIndividual o) {
@@ -88,12 +88,12 @@ public class WSCIndividual implements Comparable<WSCIndividual> {
 		this.fitness = fitness;
 	}
 
-	public int getSplitPosition() {
-		return splitPosition;
+	public DirectedAcyclicGraph getDagRepresentation() {
+		return dagRepresentation;
 	}
 
-	public void setSplitPosition(int splitPosition) {
-		this.splitPosition = splitPosition;
+	public void setDagRepresentation(DirectedAcyclicGraph dagRepresentation) {
+		this.dagRepresentation = dagRepresentation;
 	}
 
 }

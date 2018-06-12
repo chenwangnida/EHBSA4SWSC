@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import wsc.data.pool.Service;
 import wsc.graph.ServiceInput;
 import wsc.owl.bean.OWLClass;
+import wsc.problem.WSCIndividual;
 import wsc.problem.WSCInitializer;
 
 public class EHBSA {
@@ -18,6 +21,8 @@ public class EHBSA {
 	double[][] m_node; // a edge histogram matrix (EHM)
 	private double m_bRatio;// a bias for EHM
 
+	private List<WSCIndividual> m_pop = new ArrayList<WSCIndividual>();
+
 	public EHBSA(int m_i, int m_j) {
 		this.m_i = m_i;
 		this.m_j = m_j;
@@ -25,8 +30,6 @@ public class EHBSA {
 	}
 
 	public double[][] initialEHM() {
-
-		// setDefaultPara(); // set bias
 
 		// set -1 to all entries in EHM
 		for (int i = 0; i < m_i; i++) {
@@ -62,6 +65,13 @@ public class EHBSA {
 			}
 		}
 
+		return m_node;
+	}
+
+	public List<WSCIndividual> sampling4EHBSA(double[][] m_node) {
+		// To Do: set bias
+		// setDefaultPara();
+
 		// add bias to only correct entries of NHM
 		for (int i = 0; i < m_i; i++) {
 			for (int j = 0; j < m_j; j++) {
@@ -71,8 +81,16 @@ public class EHBSA {
 				}
 			}
 		}
+		return null;
 
-		return m_node;
+	}
+
+	public List<WSCIndividual> getM_pop() {
+		return m_pop;
+	}
+
+	public void setM_pop(List<WSCIndividual> m_pop) {
+		this.m_pop = m_pop;
 	}
 
 }

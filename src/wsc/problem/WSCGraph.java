@@ -22,27 +22,26 @@ public class WSCGraph {
 	 * @return graph
 	 */
 
-	// public ServiceGraph generateGraph() {
-	//
-	// ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
-	//
-	// WSCInitializer.initialWSCPool.createGraphService(WSCInitializer.taskInput,
-	// WSCInitializer.taskOutput, graph);
-	//
-	// while (true) {
-	// List<String> dangleVerticeList = dangleVerticeList(graph);
-	// if (dangleVerticeList.size() == 0) {
-	// break;
-	// }
-	// removeCurrentdangle(graph, dangleVerticeList);
-	// }
-	// graph.removeEdge("startNode", "endNode");
-	// // System.out.println("original DAG:"+graph.toString());
-	//// optimiseGraph(graph);
-	// // System.out.println("optimised DAG:"+graph.toString());
-	//
-	// return graph;
-	// }
+	public ServiceGraph generateGraph() {
+
+		ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
+
+		WSCInitializer.initialWSCPool.createGraphService(WSCInitializer.taskInput, WSCInitializer.taskOutput, graph);
+
+		while (true) {
+			List<String> dangleVerticeList = dangleVerticeList(graph);
+			if (dangleVerticeList.size() == 0) {
+				break;
+			}
+			removeCurrentdangle(graph, dangleVerticeList);
+		}
+		graph.removeEdge("startNode", "endNode");
+		// System.out.println("original DAG:"+graph.toString());
+		// optimiseGraph(graph);
+		// System.out.println("optimised DAG:"+graph.toString());
+
+		return graph;
+	}
 
 	public ServiceGraph generateGraph(List<Integer> usedSerQueue) {
 

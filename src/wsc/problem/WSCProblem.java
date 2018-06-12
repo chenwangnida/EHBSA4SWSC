@@ -41,34 +41,18 @@ public class WSCProblem {
 
 		List<WSCIndividual> population = new ArrayList<WSCIndividual>();
 		// entry to NHBSA
-		EHBSA ebsa = new EHBSA(WSCInitializer.dimension_size, WSCInitializer.dimension_size);
+		EHBSA ehbsa = new EHBSA(WSCInitializer.dimension_size, WSCInitializer.dimension_size);
 
+		double[][] m_node = ehbsa.initialEHM();
 		// random initalize one double size population solutions
 		while (population.size() < WSCInitializer.population_size * 2) {
 			WSCIndividual individual = new WSCIndividual();
-			List<Integer> fullSerQueue = new ArrayList<Integer>();
-			List<Integer> usedSerQueue = new ArrayList<Integer>();
-
 			// graph-based representation
-			// fullSerQueue is initially empty, but updated with the services used in the
-			// generated graph
-			ServiceGraph graph = graGenerator.generateGraph(fullSerQueue);
-
-			// create a queue of services according to breath first search
-			List<Integer> usedQueue = graGenerator.usedQueueofLayers("startNode", graph, usedSerQueue);
-			// set the position of the split position of the queue
-			individual.setSplitPosition(usedQueue.size()); // index from 0 to (splitposition-1)
-
-			// add unused queue to form a complete a vector-based individual
-			List<Integer> serQueue = graGenerator.completeSerQueueIndi(usedQueue, fullSerQueue);
-			// Set serQueue to individual(do I need deep clone ?)
-			individual.serQueue.addAll(serQueue);
+			ServiceGraph graph = graGenerator.generateGraph();
 
 			eval.aggregationAttribute(individual, graph);
 			eval.calculateFitness(individual);
 			population.add(individual);
-			// WSCInitializer.evalCounter++;
-			// BestIndiSoFar4EvalStep(population);
 		}
 
 		// entry to learn the matrix and sampling individuals
@@ -76,16 +60,6 @@ public class WSCProblem {
 		while (iteration < WSCInitializer.MAX_NUM_ITERATIONS) {
 			long startTime = System.currentTimeMillis();
 			System.out.println("GENERATION " + iteration);
-
-			// add a local search
-			LocalSearch ls = new LocalSearch();
-			// ls.swapChunk(population, WSCInitializer.random, graGenerator, eval);
-			ls.randomSwapOnefromLayers5GroupByFit(population, WSCInitializer.random, graGenerator, eval);
-
-			// add a mutation
-			// Mutation mutatation = new Mutation();
-			// mutatation.swapOne(population, WSCInitializer.random, graGenerator, eval);
-			// mutatation.swapTwo(population, WSCInitializer.random, graGenerator, eval);
 
 			// sort the individuals according to the fitness
 			Collections.sort(population);
@@ -101,77 +75,29 @@ public class WSCProblem {
 				}
 			}
 
-			// entry to NHBSA
-
 			// select first half population into matrix and archive
 			List<WSCIndividual> archive = new ArrayList<WSCIndividual>();
-
-			int[][] m_generation = new int[WSCInitializer.population_size][WSCInitializer.dimension_size];
 			for (int m = 0; m < WSCInitializer.population_size; m++) {
 				archive.add(population.get(m));
-				for (int n = 0; n < WSCInitializer.dimension_size; n++) {
-					m_generation[m][n] = population.get(m).serQueue.get(n);
-				}
+				ehbsa.setM_pop(archive);
+
 			}
 
-			nhbsa.setM_pop(m_generation);
-			nhbsa.setM_L(WSCInitializer.dimension_size);
-			nhbsa.setM_N(WSCInitializer.population_size);
+			// Learn EHBSA with initial ehm
 
-			// sample only half number of pop
-			List<int[]> pop_updated = nhbsa.sampling4NHBSA(WSCInitializer.population_size, WSCInitializer.random);
+			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSA(m_node);
 
 			population.clear();
 
 			// add another half number of pop to population
 			population.addAll(archive);
 
-			// update the population with pop_updated
+			// add the population with pop_updated
 			for (int m = 0; m < pop_updated.size(); m++) {
-				int[] id_updated = pop_updated.get(m);
-				WSCIndividual indi_updated = new WSCIndividual();
-				List<Service> serviceCandidates = new ArrayList<Service>();
-				for (int n = 0; n < id_updated.length; n++) {
-
-					// deep clone may be not needed if no changes are applied to the pointed service
-					serviceCandidates.add(WSCInitializer.Index2ServiceMap.get(id_updated[n]));
-				}
-
-				// set the service candidates according to the sampling
-				InitialWSCPool.getServiceCandidates().clear();
-				InitialWSCPool.setServiceCandidates(serviceCandidates);
-
-				List<Integer> fullSerQueue = new ArrayList<Integer>();
-				for (int id : id_updated) {
-					fullSerQueue.add(id);
-				}
-
-				List<Integer> usedSerQueue = new ArrayList<Integer>();
-
-				ServiceGraph update_graph = graGenerator.generateGraphBySerQueue();
-				// adjust the bias according to the valid solution from the service queue
-
-				// create a queue of services according to breathfirstsearch algorithm
-
-				List<Integer> usedQueue = graGenerator.usedQueueofLayers("startNode", update_graph, usedSerQueue);
-				// set up the split index for the updated individual
-				indi_updated.setSplitPosition(usedQueue.size());
-
-				// add unused queue to form a complete a vector-based individual
-				List<Integer> serQueue = graGenerator.completeSerQueueIndi(usedQueue, fullSerQueue);
-
-				// set the serQueue to the updatedIndividual
-				indi_updated.serQueue = serQueue;
-
-				// evaluate updated updated_graph
-				// eval.aggregationAttribute(indi_updated, updated_graph);
-				eval.aggregationAttribute(indi_updated, update_graph);
-				eval.calculateFitness(indi_updated);
-				population.add(indi_updated);
-
-				// WSCInitializer.evalCounter++;
-				// BestIndiSoFar4EvalStep(population);
-
+				WSCIndividual id_updated = pop_updated.get(m);
+				eval.aggregationAttribute(id_updated, id_updated.getDagRepresentation());
+				eval.calculateFitness(id_updated);
+				population.add(id_updated);
 			}
 			WSCInitializer.initTime.add(initialization);
 			initialization = (long) 0.0;
