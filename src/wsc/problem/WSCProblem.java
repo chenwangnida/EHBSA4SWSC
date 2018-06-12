@@ -9,10 +9,6 @@ import java.util.Collections;
 import java.util.List;
 
 import ehbsa.EHBSA;
-import ehbsa.LocalSearch;
-import ehbsa.NHBSA;
-import wsc.InitialWSCPool;
-import wsc.data.pool.Service;
 import wsc.graph.ServiceGraph;
 
 public class WSCProblem {
