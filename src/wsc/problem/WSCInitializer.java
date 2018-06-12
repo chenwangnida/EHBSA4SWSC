@@ -22,6 +22,8 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.NaiveLcaFinder;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.traverse.BreadthFirstIterator;
+import org.jgrapht.traverse.GraphIterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -35,8 +37,10 @@ import com.google.common.collect.Table;
 import wsc.InitialWSCPool;
 import wsc.data.pool.SemanticsPool;
 import wsc.data.pool.Service;
+import wsc.graph.ServiceEdge;
 import wsc.graph.ServiceInput;
 import wsc.graph.ServiceOutput;
+import wsc.graph.TaxonomyNode;
 import wsc.owl.bean.OWLClass;
 
 public class WSCInitializer {
@@ -96,6 +100,7 @@ public class WSCInitializer {
 	public static Map<Integer, Service> Index2ServiceMap = new HashMap<Integer, Service>();
 	public static BiMap<Integer, String> serviceIndexBiMap = HashBiMap.create();
 	public static Map<Integer, List<Integer>> layers4SerIndex = new HashMap<Integer, List<Integer>>();
+	public static Map<String, TaxonomyNode> TaxonomyNodeMap = new HashMap<String, TaxonomyNode>();
 
 	public static Table<String, String, Double> semanticMatrix;
 
@@ -244,12 +249,14 @@ public class WSCInitializer {
 			// find the relevant concepts of each input on ontology tree
 			OWLClass inputConceptClass = semanticsPool.owlClassHashMap
 					.get(semanticsPool.owlInstHashMap.get(input.getInput()).getRdfType().getResource().substring(1));
-			
-			ontologyDAG.
-			inputConceptClass.getID();
-			
 
-			// Also add input to all children nodes
+			GraphIterator<String, DefaultEdge> iterator = new BreadthFirstIterator<String, DefaultEdge>(ontologyDAG,
+					inputConceptClass.getID());
+			while (iterator.hasNext()) {
+				// Also add input to all children nodes
+				String childConcept = iterator.next();
+				TaxonomyNodeMap.get(childConcept).servicesWithInput.add(e)
+			}
 
 		}
 
@@ -264,8 +271,6 @@ public class WSCInitializer {
 
 		return;
 	}
-	
-	
 
 	/**
 	 * Create a full Ontology tree with data loaded from initialSWSPool
@@ -281,7 +286,7 @@ public class WSCInitializer {
 
 		for (String concept : owlClassMap.keySet()) {
 			g.addVertex(concept);
-
+			TaxonomyNodeMap.put(concept, new TaxonomyNode(concept));
 		}
 
 		for (OWLClass owlClass : owlClassMap.values()) {
