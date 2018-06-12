@@ -1,9 +1,6 @@
 package wsc.graph;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 import wsc.data.pool.Service;
@@ -15,8 +12,8 @@ import wsc.data.pool.Service;
 public class TaxonomyNode {
 
 	public String concept;
-	public List<Service> servicesWithInput = new ArrayList<Service>();
-	public List<Service> servicesWithOutput = new ArrayList<Service>();
+	public Set<Service> servicesWithInput = new HashSet<Service>();
+	public Set<Service> servicesWithOutput = new HashSet<Service>();
 
 	public TaxonomyNode(String concept) {
 		this.concept = concept;

@@ -250,12 +250,15 @@ public class WSCInitializer {
 			OWLClass inputConceptClass = semanticsPool.owlClassHashMap
 					.get(semanticsPool.owlInstHashMap.get(input.getInput()).getRdfType().getResource().substring(1));
 
+			// add inputs to current taxonomy node
+			TaxonomyNodeMap.get(inputConceptClass.getID()).servicesWithInput.add(s);
+
 			GraphIterator<String, DefaultEdge> iterator = new BreadthFirstIterator<String, DefaultEdge>(ontologyDAG,
 					inputConceptClass.getID());
 			while (iterator.hasNext()) {
-				// Also add input to all children nodes
+				// Also add input to all children taxonomy nodes
 				String childConcept = iterator.next();
-				TaxonomyNodeMap.get(childConcept).servicesWithInput.add(e)
+				TaxonomyNodeMap.get(childConcept).servicesWithInput.add(s);
 			}
 
 		}
@@ -263,13 +266,35 @@ public class WSCInitializer {
 		// Populate outputs
 		for (ServiceOutput output : s.getOutputList()) {
 			// find the relevant concepts of each input on ontology tree
-			output.getOutput();
+			OWLClass outputConceptClass = semanticsPool.owlClassHashMap
+					.get(semanticsPool.owlInstHashMap.get(output.getOutput()).getRdfType().getResource().substring(1));
+
+			// add output to current taxonomy node
+			TaxonomyNodeMap.get(outputConceptClass.getID()).servicesWithOutput.add(s);
 
 			// Also add output to all parent nodes
-
+			for (DefaultEdge edge : ontologyDAG.incomingEdgesOf(outputConceptClass.getID())) {
+				String directparent = ontologyDAG.getEdgeTarget(edge);
+				parentNodes(edge, directparent, s);
+			}
 		}
-
 		return;
+	}
+
+	/**
+	 * Recursive function to discover all the predecessors.
+	 *
+	 * @param edge
+	 */
+	private void parentNodes(DefaultEdge edge, String directparent, Service s) {
+		if (directparent.equals(rootconcept)) {
+			return;
+		} else {
+			for (DefaultEdge e : ontologyDAG.incomingEdgesOf(directparent)) {
+				TaxonomyNodeMap.get(ontologyDAG.getEdgeTarget(e)).servicesWithOutput.add(s);
+				parentNodes(e, ontologyDAG.getEdgeTarget(e), s);
+			}
+		}
 	}
 
 	/**
