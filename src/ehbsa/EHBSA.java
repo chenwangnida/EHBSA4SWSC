@@ -124,11 +124,11 @@ public class EHBSA {
 				c_candidates[m] = m;
 			}
 
-			// set the position counter
-			int p_counter = 0;
-
 			if (serSet.size() != 0) {
 				for (Service s : serSet) {
+					
+					// set the position counter
+					int p_counter = 0;
 
 					// reset satisfactions of service inputs to false
 					for (ServiceInput serinput : s.getInputList()) {
@@ -202,11 +202,16 @@ public class EHBSA {
 							// update unsatisfied inputs
 
 						}
+//						serSet then break;
+						if() {// all inputs are satisfied then
+							break;
+						}
 						p_counter++;
+						
 					}
 
 					// all inputs are satisfied move j to next element in serSet, and remove current
-					// one in serSet
+					// one in 					
 
 				}
 			}
