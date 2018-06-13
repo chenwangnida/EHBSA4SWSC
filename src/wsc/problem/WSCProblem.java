@@ -83,7 +83,7 @@ public class WSCProblem {
 
 			// Learn EHBSA with initial ehm
 
-			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSA(m_node);
+			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSA(WSCInitializer.population_size, WSCInitializer.random);
 
 			population.clear();
 

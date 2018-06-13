@@ -127,11 +127,17 @@ public class EHBSA {
 			// set the position counter
 			int p_counter = 0;
 
-			// set one dimension for sampling
-			int j = WSCInitializer.endSer.getServiceIndex();
-
 			if (serSet.size() != 0) {
 				for (Service s : serSet) {
+
+					// reset satisfactions of service inputs to false
+					for (ServiceInput serinput : s.getInputList()) {
+						serinput.setSatified(false);
+					}
+
+					// set one dimension for sampling
+					int j = s.getServiceIndex();
+
 					boolean sf = false;
 					int noOfsampling = 0;
 					for (ServiceInput sInput : s.getInputList()) {
@@ -168,14 +174,20 @@ public class EHBSA {
 
 						// sample one predecessor from j
 						int indexOfPredecessor = sampling(c_candidates, discreteProbabilities, random)[0];
+						Service predecessor = WSCInitializer.Index2ServiceMap.get(indexOfPredecessor);
+
 						noOfsampling++;
 
 						if (noOfsampling == 1) {
 							// create an edge between predecessor and j, if no inputs of j are satisfied
-							graph.addEdge(WSCInitializer.serviceIndexBiMap.get(indexOfPredecessor),
-									WSCInitializer.serviceIndexBiMap.get(j));
+							graph.addEdge(predecessor.getServiceID(), WSCInitializer.serviceIndexBiMap.get(j));
 
-							// put sampled predecessor into serSet
+							// put the sampled predecessor into serSet
+							serSet.add(predecessor);
+
+							// create edge and its semantic quality
+							//To Do: check the function of createEdge4TwoSer
+							WSCInitializer.initialWSCPool.createEdge4TwoSer(graph, predecessor, s);
 
 							// record unsatisfied inputs
 
@@ -184,7 +196,7 @@ public class EHBSA {
 							// otherwise keeping sampling
 							graph.addEdge(WSCInitializer.serviceIndexBiMap.get(indexOfPredecessor),
 									WSCInitializer.serviceIndexBiMap.get(j));
-							
+
 							// put sampled predecessor into serSet if they are redundant services
 
 							// update unsatisfied inputs
