@@ -104,8 +104,8 @@ public class WSCInitializer {
 
 	public static Table<String, String, Double> semanticMatrix;
 
-	public Service startSer;
-	public Service endSer;
+	public static Service startSer;
+	public static Service endSer;
 
 	// logs settings
 	public static String logName;

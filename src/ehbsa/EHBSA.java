@@ -1,15 +1,17 @@
 package ehbsa;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
-
-import com.google.common.collect.Lists;
+import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
 import com.google.common.collect.Sets;
 
 import wsc.data.pool.Service;
+import wsc.graph.ServiceEdge;
+import wsc.graph.ServiceGraph;
 import wsc.graph.ServiceInput;
 import wsc.owl.bean.OWLClass;
 import wsc.problem.WSCIndividual;
@@ -19,7 +21,7 @@ public class EHBSA {
 	private int m_i; // size of i dimension
 	private int m_j; // size of j dimension
 	double[][] m_node; // a edge histogram matrix (EHM)
-	private double m_bRatio;// a bias for EHM
+	private double m_bRatio = 0.0002;// a bias for EHM
 
 	private int sizeOfSDG;
 
@@ -64,24 +66,29 @@ public class EHBSA {
 			// set 0 to valid entries in EHM
 			for (Service ser : intersection) {
 				m_node[ser.getServiceIndex()][j] = 0;
+				sizeOfSDG++;
 			}
 		}
 
 		return m_node;
 	}
 
-	public final void setDefaultPara() {
+	public final void setBias4EHM() {
 
 		int sum_pop_edge = 0;
-		m_pop.forEach(indi -> sum_pop_edge += indi.getEdgeSize());
+		for (WSCIndividual indi : m_pop) {
+			sum_pop_edge += indi.getEdgeSize();
+		}
 
-		m_bRatio = 0.0002;// defined by users
-		m_bRatio = (m_N * m_bRatio) / m_L; // bias
+		m_bRatio = (sum_pop_edge * m_bRatio) / sizeOfSDG; // bias
 	}
 
-	public List<WSCIndividual> sampling4EHBSA(double[][] m_node) {
+	public List<WSCIndividual> sampling4EHBSA(int sampleSize, Random random) {
+
+		List<WSCIndividual> sampled_pop = new ArrayList<WSCIndividual>();
+
 		// To Do: set bias
-		setDefaultPara();
+		setBias4EHM();
 
 		// add bias to only correct entries of NHM
 		for (int i = 0; i < m_i; i++) {
@@ -92,8 +99,124 @@ public class EHBSA {
 				}
 			}
 		}
-		return null;
 
+		// EHBSA/WO Sampling sampleSize numbers of individuals
+		for (int no_sample = 0; no_sample < sampleSize; no_sample++) {
+			// initial graph and its corresponding individual
+			ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
+			graph.addVertex("startNode");
+			graph.addVertex("endNode");
+
+			WSCIndividual sampledIndi = new WSCIndividual();
+			sampledIndi.setDagRepresentation(graph);
+
+			// initial serSet with endNode
+			Set<Service> serSet = new HashSet<Service>();
+
+			// TO DO: set satisfaction 0 to inputs of all services
+
+			// initial serSet with endSer
+			serSet.add(WSCInitializer.endSer);
+
+			// inital a candidate node list
+			int[] c_candidates = new int[m_j];
+			for (int m = 0; m < m_j; m++) {
+				c_candidates[m] = m;
+			}
+
+			// set the position counter
+			int p_counter = 0;
+
+			// set one dimension for sampling
+			int j = WSCInitializer.endSer.getServiceIndex();
+
+			if (serSet.size() != 0) {
+				for (Service s : serSet) {
+					boolean sf = false;
+					int noOfsampling = 0;
+					for (ServiceInput sInput : s.getInputList()) {
+						sf = sInput.isSatified();
+						if (sf == false) {
+							break;
+						}
+					}
+
+					while (!sf) {
+						// sample one predecessor of current j
+						double[] discreteProbabilities = new double[m_j - p_counter];
+
+						// calculate probability and put them into proba[]
+						double sum_proba = 0;
+						for (int c : c_candidates) {
+							if (c != -1) {
+								sum_proba += m_node[c][j];
+							}
+						}
+
+						int m = 0;
+
+						for (int c : c_candidates) {
+							// for -1 , we set 0 probability to its distribution
+							if (m_node[c][j] == -1) {
+								discreteProbabilities[m] = 0 / sum_proba;
+
+							} else {
+								discreteProbabilities[m] = m_node[c][j] / sum_proba;
+							}
+							m++;
+						}
+
+						// sample one predecessor from j
+						int indexOfPredecessor = sampling(c_candidates, discreteProbabilities, random)[0];
+						noOfsampling++;
+
+						if (noOfsampling == 1) {
+							// create an edge between predecessor and j, if no inputs of j are satisfied
+							graph.addEdge(WSCInitializer.serviceIndexBiMap.get(indexOfPredecessor),
+									WSCInitializer.serviceIndexBiMap.get(j));
+
+							// put sampled predecessor into serSet
+
+							// record unsatisfied inputs
+
+						} else {
+							// if any recorded unsatisfied inputs are satisfied we do the following,
+							// otherwise keeping sampling
+							graph.addEdge(WSCInitializer.serviceIndexBiMap.get(indexOfPredecessor),
+									WSCInitializer.serviceIndexBiMap.get(j));
+							
+							// put sampled predecessor into serSet if they are redundant services
+
+							// update unsatisfied inputs
+
+						}
+						p_counter++;
+					}
+
+					// all inputs are satisfied move j to next element in serSet, and remove current
+					// one in serSet
+
+				}
+			}
+
+			sampled_pop.add(sampledIndi);
+		}
+
+		return sampled_pop;
+
+	}
+
+	// sampling function for sampling one individual requiring
+	// re-normalization of the remaining after each sampling
+	public int[] sampling(int[] numsToGenerate, double[] discreteProbabilities, Random random) {
+
+		// sample node x with probability
+		EnumeratedIntegerDistribution distribution = new EnumeratedIntegerDistribution(numsToGenerate,
+				discreteProbabilities);
+
+		distribution.reseedRandomGenerator(random.nextInt());
+
+		return distribution.sample(1);
 	}
 
 	public List<WSCIndividual> getM_pop() {
