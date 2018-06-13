@@ -40,11 +40,13 @@ public class WSCProblem {
 		EHBSA ehbsa = new EHBSA(WSCInitializer.dimension_size, WSCInitializer.dimension_size);
 
 		double[][] m_node = ehbsa.initialEHM();
+		
 		// random initalize one double size population solutions
 		while (population.size() < WSCInitializer.population_size * 2) {
 			WSCIndividual individual = new WSCIndividual();
 			// graph-based representation
 			ServiceGraph graph = graGenerator.generateGraph();
+			individual.setDagRepresentation(graph);
 
 			eval.aggregationAttribute(individual, graph);
 			eval.calculateFitness(individual);

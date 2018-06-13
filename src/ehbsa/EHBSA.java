@@ -21,6 +21,8 @@ public class EHBSA {
 	double[][] m_node; // a edge histogram matrix (EHM)
 	private double m_bRatio;// a bias for EHM
 
+	private int sizeOfSDG;
+
 	private List<WSCIndividual> m_pop = new ArrayList<WSCIndividual>();
 
 	public EHBSA(int m_i, int m_j) {
@@ -33,7 +35,7 @@ public class EHBSA {
 
 		// set -1 to all entries in EHM
 		for (int i = 0; i < m_i; i++) {
-			for (int j = 1; j < m_j; j++) {
+			for (int j = 0; j < m_j; j++) {
 				m_node[i][j] = -1;
 			}
 		}
@@ -56,7 +58,7 @@ public class EHBSA {
 			// intersection of sets in scanList4Predecessors
 			Set<Service> intersection = scanList4Predecessors.get(0);
 			for (Set<Service> scan : scanList4Predecessors.subList(1, scanList4Predecessors.size())) {
-				intersection = Sets.intersection(intersection, scan);
+				intersection = Sets.union(intersection, scan);
 			}
 
 			// set 0 to valid entries in EHM
@@ -68,9 +70,18 @@ public class EHBSA {
 		return m_node;
 	}
 
+	public final void setDefaultPara() {
+
+		int sum_pop_edge = 0;
+		m_pop.forEach(indi -> sum_pop_edge += indi.getEdgeSize());
+
+		m_bRatio = 0.0002;// defined by users
+		m_bRatio = (m_N * m_bRatio) / m_L; // bias
+	}
+
 	public List<WSCIndividual> sampling4EHBSA(double[][] m_node) {
 		// To Do: set bias
-		// setDefaultPara();
+		setDefaultPara();
 
 		// add bias to only correct entries of NHM
 		for (int i = 0; i < m_i; i++) {

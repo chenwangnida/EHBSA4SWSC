@@ -6,10 +6,13 @@ import java.util.List;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 
+import wsc.graph.ServiceGraph;
+
 public class WSCIndividual implements Comparable<WSCIndividual> {
 
 	private String strRepresentation; // a string of graph-based representation
-	private DirectedAcyclicGraph<String, DefaultEdge> dagRepresentation;
+	private ServiceGraph dagRepresentation;
+	private int edgeSize;
 	private double availability;
 	private double reliability;
 	private double time;
@@ -22,14 +25,6 @@ public class WSCIndividual implements Comparable<WSCIndividual> {
 	@Override
 	public int compareTo(WSCIndividual o) {
 		return Double.compare(o.fitness, this.fitness);
-	}
-
-	public String getStrRepresentation() {
-		return strRepresentation;
-	}
-
-	public void setStrRepresentation(String strRepresentation) {
-		this.strRepresentation = strRepresentation;
 	}
 
 	public double getAvailability() {
@@ -88,12 +83,28 @@ public class WSCIndividual implements Comparable<WSCIndividual> {
 		this.fitness = fitness;
 	}
 
-	public DirectedAcyclicGraph getDagRepresentation() {
+	public ServiceGraph getDagRepresentation() {
 		return dagRepresentation;
 	}
 
-	public void setDagRepresentation(DirectedAcyclicGraph dagRepresentation) {
+	public void setDagRepresentation(ServiceGraph dagRepresentation) {
 		this.dagRepresentation = dagRepresentation;
+	}
+
+	public String getStrRepresentation() {
+		return strRepresentation;
+	}
+
+	public void setStrRepresentation(String strRepresentation) {
+		this.strRepresentation = strRepresentation;
+	}
+
+	public int getEdgeSize() {
+		return edgeSize;
+	}
+
+	public void setEdgeSize(int edgeSize) {
+		this.edgeSize = edgeSize;
 	}
 
 }

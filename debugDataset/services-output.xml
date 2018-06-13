@@ -15,7 +15,7 @@
       <instance name="feline"/>
     </inputs>
     <outputs>
-      <instance name="mammal"/>
+      <instance name="mammal" />
     </outputs>
   </service>
 </services>

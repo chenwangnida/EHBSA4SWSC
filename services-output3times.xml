@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+  <service name="a" Res="1036.15" Ava="0.51" Suc="0.55" Rel="0.34" Lat="2474.34" Pri="2.17">
+    <inputs>
+      <instance name="dog"/>
+    </inputs>
+    <outputs>
+      <instance name="tiger" />
+      <instance name="wolf" />
+    </outputs>
+  </service>
+  <service name="a0" Res="3026.15" Ava="0.71" Suc="0.45" Rel="0.84" Lat="2474.34" Pri="7.17">
+    <inputs>
+      <instance name="dog"/>
+    </inputs>
+    <outputs>
+      <instance name="tiger" />
+      <instance name="wolf" />
+    </outputs>
+  </service>
+  <service name="a1" Res="336.15" Ava="0.41" Suc="0.15" Rel="0.34" Lat="2474.34" Pri="17.17">
+    <inputs>
+      <instance name="dog"/>
+    </inputs>
+    <outputs>
+      <instance name="tiger" />
+      <instance name="wolf" />
+    </outputs>
+  </service>
+  <service name="b" Res="2036.15" Ava="0.51" Suc="0.70" Rel="0.94" Lat="2464.34" Pri="19.17">
+    <inputs>
+      <instance name="canine"/>
+      <instance name="feline"/>
+    </inputs>
+    <outputs>
+      <instance name="mammal" />
+    </outputs>
+  </service>
+  <service name="b0" Res="603.15" Ava="0.51" Suc="0.70" Rel="0.34" Lat="2464.34" Pri="9.17">
+    <inputs>
+      <instance name="canine"/>
+      <instance name="feline"/>
+    </inputs>
+    <outputs>
+      <instance name="mammal" />
+    </outputs>
+  </service>
+  <service name="b1" Res="36.15" Ava="0.51" Suc="0.70" Rel="0.34" Lat="2464.34" Pri="79.17">
+    <inputs>
+      <instance name="canine"/>
+      <instance name="feline"/>
+    </inputs>
+    <outputs>
+      <instance name="mammal" />
+    </outputs>
+  </service>
+</services>

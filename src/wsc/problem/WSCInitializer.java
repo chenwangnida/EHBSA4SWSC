@@ -104,6 +104,9 @@ public class WSCInitializer {
 
 	public static Table<String, String, Double> semanticMatrix;
 
+	public Service startSer;
+	public Service endSer;
+
 	// logs settings
 	public static String logName;
 
@@ -153,6 +156,9 @@ public class WSCInitializer {
 			e.printStackTrace();
 		}
 
+		// initialize all maps additionally with start and end
+		initializeMaps(initialWSCPool.getServiceSequence());
+
 		// label Ontology tree with relevant services
 		populateTaxonomyTree(initialWSCPool.getSemanticsPool());
 
@@ -168,8 +174,6 @@ public class WSCInitializer {
 				+ "; all relevant service: " + initialWSCPool.getServiceSequence().size() + "; semanticMatrix: "
 				+ semanticMatrix.size());
 
-		// initialize all the Hashmaps additionally with start and end
-		initializeMaps(initialWSCPool.getServiceSequence());
 		// MapLayerSer2LayerIndex(initialWSCPool.getLayers());
 
 		calculateNormalisationBounds(initialWSCPool.getServiceSequence(),
@@ -238,43 +242,48 @@ public class WSCInitializer {
 		for (Service s : initialWSCPool.getServiceSequence()) {
 			addServiceToTaxonomyTree(s, semanticsPool);
 		}
+
+		addServiceToTaxonomyTree(startSer, semanticsPool);
+		addServiceToTaxonomyTree(endSer, semanticsPool);
+
 	}
 
 	private void addServiceToTaxonomyTree(Service s, SemanticsPool semanticsPool) {
 		// ontologyDAG
 
 		// Populate inputs
-		for (ServiceInput input : s.getInputList()) {
-			// find the relevant concepts of each input on ontology tree
-			OWLClass inputConceptClass = semanticsPool.owlClassHashMap
-					.get(semanticsPool.owlInstHashMap.get(input.getInput()).getRdfType().getResource().substring(1));
+		if (s.getInputList() != null) {
+			for (ServiceInput input : s.getInputList()) {
+				// find the relevant concepts of each input on ontology tree
+				OWLClass inputConceptClass = semanticsPool.owlClassHashMap.get(
+						semanticsPool.owlInstHashMap.get(input.getInput()).getRdfType().getResource().substring(1));
 
-			// add inputs to current taxonomy node
-			TaxonomyNodeMap.get(inputConceptClass.getID()).servicesWithInput.add(s);
+				GraphIterator<String, DefaultEdge> iterator = new BreadthFirstIterator<String, DefaultEdge>(ontologyDAG,
+						inputConceptClass.getID());
+				while (iterator.hasNext()) {
+					// Also add input to current node and all its children nodes
+					String childConcept = iterator.next();
+					TaxonomyNodeMap.get(childConcept).servicesWithInput.add(s);
+				}
 
-			GraphIterator<String, DefaultEdge> iterator = new BreadthFirstIterator<String, DefaultEdge>(ontologyDAG,
-					inputConceptClass.getID());
-			while (iterator.hasNext()) {
-				// Also add input to all children taxonomy nodes
-				String childConcept = iterator.next();
-				TaxonomyNodeMap.get(childConcept).servicesWithInput.add(s);
 			}
-
 		}
 
 		// Populate outputs
-		for (ServiceOutput output : s.getOutputList()) {
-			// find the relevant concepts of each input on ontology tree
-			OWLClass outputConceptClass = semanticsPool.owlClassHashMap
-					.get(semanticsPool.owlInstHashMap.get(output.getOutput()).getRdfType().getResource().substring(1));
+		if (s.getOutputList() != null) {
+			for (ServiceOutput output : s.getOutputList()) {
+				// find the relevant concepts of each input on ontology tree
+				OWLClass outputConceptClass = semanticsPool.owlClassHashMap.get(
+						semanticsPool.owlInstHashMap.get(output.getOutput()).getRdfType().getResource().substring(1));
 
-			// add output to current taxonomy node
-			TaxonomyNodeMap.get(outputConceptClass.getID()).servicesWithOutput.add(s);
+				// add output to current taxonomy node
+				TaxonomyNodeMap.get(outputConceptClass.getID()).servicesWithOutput.add(s);
 
-			// Also add output to all parent nodes
-			for (DefaultEdge edge : ontologyDAG.incomingEdgesOf(outputConceptClass.getID())) {
-				String directparent = ontologyDAG.getEdgeTarget(edge);
-				parentNodes(edge, directparent, s);
+				// Also add output to all parent nodes
+				for (DefaultEdge edge : ontologyDAG.incomingEdgesOf(outputConceptClass.getID())) {
+					TaxonomyNodeMap.get(ontologyDAG.getEdgeSource(edge)).servicesWithOutput.add(s);
+					parentNodes(edge, ontologyDAG.getEdgeSource(edge), s);
+				}
 			}
 		}
 		return;
@@ -290,8 +299,8 @@ public class WSCInitializer {
 			return;
 		} else {
 			for (DefaultEdge e : ontologyDAG.incomingEdgesOf(directparent)) {
-				TaxonomyNodeMap.get(ontologyDAG.getEdgeTarget(e)).servicesWithOutput.add(s);
-				parentNodes(e, ontologyDAG.getEdgeTarget(e), s);
+				TaxonomyNodeMap.get(ontologyDAG.getEdgeSource(e)).servicesWithOutput.add(s);
+				parentNodes(e, ontologyDAG.getEdgeSource(e), s);
 			}
 		}
 	}
@@ -450,11 +459,10 @@ public class WSCInitializer {
 		List<ServiceInput> endInputs = new ArrayList<ServiceInput>();
 		taskOutput.forEach(taskoutput -> endInputs.add(new ServiceInput(taskoutput, "startNode", false)));
 
-		Service startSer = new Service("startNode", null, null, startOutputs);
+		startSer = new Service("startNode", null, null, startOutputs);
 		startSer.serviceIndex = 0;
-		
-		
-		Service endSer = new Service("endNode", null, endInputs, null);
+
+		endSer = new Service("endNode", null, endInputs, null);
 
 		serviceMap.put(startSer.getServiceID(), startSer);
 		serviceQoSMap.put(startSer.getServiceID(), startSer.getQos());
@@ -472,7 +480,7 @@ public class WSCInitializer {
 			Index2ServiceMap.put(i, service);
 			i += 1;
 		}
-		
+
 		endSer.serviceIndex = i;
 		serviceMap.put(endSer.getServiceID(), endSer);
 		serviceQoSMap.put(endSer.getServiceID(), endSer.getQos());

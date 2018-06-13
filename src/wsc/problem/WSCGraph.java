@@ -36,10 +36,6 @@ public class WSCGraph {
 			removeCurrentdangle(graph, dangleVerticeList);
 		}
 		graph.removeEdge("startNode", "endNode");
-		// System.out.println("original DAG:"+graph.toString());
-		// optimiseGraph(graph);
-		// System.out.println("optimised DAG:"+graph.toString());
-
 		return graph;
 	}
 

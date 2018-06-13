@@ -53,6 +53,7 @@ public class WSCEvaluation {
 		individual.setTime(t);
 		individual.setCost(c);
 		individual.setStrRepresentation(directedGraph.toString());
+		individual.setEdgeSize(directedGraph.edgeSet().size());
 	}
 
 	public double calculateFitness(WSCIndividual individual) {
