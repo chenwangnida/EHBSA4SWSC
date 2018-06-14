@@ -130,6 +130,14 @@ public class EHBSA {
 				Iterator<Service> iterator = serSet.iterator();
 				while (iterator.hasNext()) {
 					Service s = iterator.next();
+
+					// stop condition for outer loop is serSet only contains StartNode
+					if (serSet.size() == 1) {
+						if (s.getServiceID() == "startNode") {
+							break;
+						}
+					}
+
 					// set the position counter
 					int p_counter = 0;
 
@@ -197,9 +205,9 @@ public class EHBSA {
 					// remove s from current set
 					iterator.remove();
 				}
+				sampled_pop.add(sampledIndi);
 			}
 
-			sampled_pop.add(sampledIndi);
 		}
 
 		return sampled_pop;
