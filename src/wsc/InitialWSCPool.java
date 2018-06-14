@@ -528,7 +528,6 @@ public class InitialWSCPool {
 	 */
 	public int createEdge4TwoSer(DirectedGraph<String, ServiceEdge> directedGraph, Service predecessor, Service s) {
 		pConnList.clear();
-		int taskMatchCount = 0;
 		double summt;
 		double sumdst;
 
@@ -549,14 +548,15 @@ public class InitialWSCPool {
 						// double similarity =
 						// Service.CalculateSimilarityMeasure4Concepts(WSCInitializer.ontologyDAG,
 						// outputInst, intputreq, this.semanticsPool);
-						pConn.setOutputInst(outputInst);
-						pConn.setOutputrequ(intputreq);
+//						pConn.setOutputInst(outputInst);
+//						pConn.setOutputrequ(intputreq);
 
-						if (graphOutputListMap.get(outputInst) == null) {
-							pConn.setSourceServiceID("startNode");
-						} else {
+//						if (graphOutputListMap.get(outputInst) == null) {
+//							pConn.setSourceServiceID("startNode");
+//						} else {
 							pConn.setSourceServiceID(predecessor.getServiceID());
-						}
+							pConn.setTargetServiceID(s.getServiceID());
+						// }
 						// pConn.setSimilarity(similarity);
 						pConnList.add(pConn);
 						// break ;
@@ -572,11 +572,6 @@ public class InitialWSCPool {
 
 		if (NoofMatchedUnsatisfiedIn > 0) {
 			directedGraph.addVertex(predecessor.getServiceID());
-			sourceSerIdSet.clear();
-			for (ParamterConn p : pConnList) {
-				String sourceSerID = p.getSourceServiceID();
-				sourceSerIdSet.add(sourceSerID);
-			}
 
 			ServiceEdge serEdge = new ServiceEdge(0, 0);
 			serEdge.setSourceService(predecessor.getServiceID());
@@ -587,7 +582,6 @@ public class InitialWSCPool {
 			sumdst = 0.00;
 			for (int i1 = 0; i1 < serEdge.getpConnList().size(); i1++) {
 				ParamterConn pCo = serEdge.getpConnList().get(i1);
-				pCo.setTargetServiceID(s.getServiceID());
 				summt += pCo.getMatchType();
 				sumdst += pCo.getSimilarity();
 			}

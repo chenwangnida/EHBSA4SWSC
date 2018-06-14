@@ -46,7 +46,7 @@ import wsc.owl.bean.OWLClass;
 public class WSCInitializer {
 	// NHSBSA settings
 	public static Random random;
-	public static final int population_size = 100;
+	public static final int population_size = 200;
 	public static int dimension_size;
 	public static final int MAX_NUM_ITERATIONS = 100;
 
@@ -457,7 +457,7 @@ public class WSCInitializer {
 		taskInput.forEach(taskinput -> startOutputs.add(new ServiceOutput(taskinput, "startNode", false)));
 
 		List<ServiceInput> endInputs = new ArrayList<ServiceInput>();
-		taskOutput.forEach(taskoutput -> endInputs.add(new ServiceInput(taskoutput, "startNode", false)));
+		taskOutput.forEach(taskoutput -> endInputs.add(new ServiceInput(taskoutput, "endNode", false)));
 
 		startSer = new Service("startNode", null, null, startOutputs);
 		startSer.serviceIndex = 0;

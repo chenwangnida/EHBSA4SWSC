@@ -3,10 +3,14 @@ package ehbsa;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
 import com.google.common.collect.Sets;
 
@@ -14,6 +18,7 @@ import wsc.data.pool.Service;
 import wsc.graph.ServiceEdge;
 import wsc.graph.ServiceGraph;
 import wsc.graph.ServiceInput;
+import wsc.graph.ServiceOutput;
 import wsc.owl.bean.OWLClass;
 import wsc.problem.WSCIndividual;
 import wsc.problem.WSCInitializer;
@@ -135,19 +140,21 @@ public class EHBSA {
 		for (int no_sample = 0; no_sample < sampleSize; no_sample++) {
 			// initial graph and its corresponding individual
 			ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
-			graph.addVertex("startNode");
+			// graph.addVertex("startNode");
 			graph.addVertex("endNode");
 
 			WSCIndividual sampledIndi = new WSCIndividual();
 			sampledIndi.setDagRepresentation(graph);
 
 			// initial serSet with endNode
-			Set<Service> serSet = new HashSet<Service>();
+			Queue<Service> serQue = new LinkedList<Service>();
+
+			// Set<Service> serSet = new HashSet<Service>();
 
 			// TO DO: set satisfaction 0 to inputs of all services
 
 			// initial serSet with endSer
-			serSet.add(WSCInitializer.endSer);
+			serQue.add(WSCInitializer.endSer);
 
 			// inital a candidate node list
 			int[] c_candidates = new int[m_j];
@@ -155,88 +162,93 @@ public class EHBSA {
 				c_candidates[m] = m;
 			}
 
-			if (serSet.size() != 0) {
-
-				Iterator<Service> iterator = serSet.iterator();
-				while (iterator.hasNext()) {
-					Service s = iterator.next();
-
-					// stop condition for outer loop is serSet only contains StartNode
-					if (serSet.size() == 1) {
-						if (s.getServiceID() == "startNode") {
-							break;
-						}
+			// Iterator<Service> iterator = serSet.iterator();
+			while (!serQue.isEmpty()) {
+				Service s = serQue.remove();
+				// stop condition for outer loop is serSet only contains StartNode
+				if (serQue.size() == 0) {
+					if (s.getServiceID() == "startNode") {
+						break;
 					}
+				}
 
-					// set the position counter
-					int p_counter = 0;
+				// set the position counter
+				int p_counter = 0;
 
-					// reset satisfactions of service inputs to false
+				// reset satisfactions of service inputs to false
+				if (s.getInputList() != null) {
 					for (ServiceInput serinput : s.getInputList()) {
 						serinput.setSatified(false);
 					}
+				}
 
-					// set one dimension for sampling
-					int j = s.getServiceIndex();
+				// set one dimension for sampling
+				int j = s.getServiceIndex();
 
-					while (true) {
-						// sample one predecessor of current j
-						double[] discreteProbabilities = new double[m_j - p_counter];
+				while (true) {
+					// sample one predecessor of current j
+					double[] discreteProbabilities = new double[m_j - p_counter];
 
-						// calculate probability and put them into proba[]
-						double sum_proba = 0;
-						for (int c : c_candidates) {
-							if (c != -1) {
-								sum_proba += m_node[c][j];
-							}
+					// calculate probability and put them into proba[]
+					double sum_proba = 0;
+					for (int c : c_candidates) {
+						if (m_node[c][j] != -1) {
+							sum_proba += m_node[c][j];
 						}
-
-						int m = 0;
-
-						for (int c : c_candidates) {
-							// for -1 , we set 0 probability to its distribution
-							if (m_node[c][j] == -1) {
-								discreteProbabilities[m] = 0 / sum_proba;
-
-							} else {
-								discreteProbabilities[m] = m_node[c][j] / sum_proba;
-							}
-							m++;
-						}
-
-						// sample one predecessor from j
-						int indexOfPredecessor = sampling(c_candidates, discreteProbabilities, random)[0];
-						Service predecessor = WSCInitializer.Index2ServiceMap.get(indexOfPredecessor);
-
-						// create an edge between predecessor and j, return no of matched unsatisfied
-						// inputs if NoOfMatchedUnsatisfiedIn >0
-						int NoOfMatchedUnsatisfiedIn = WSCInitializer.initialWSCPool.createEdge4TwoSer(graph,
-								predecessor, s);
-
-						if (NoOfMatchedUnsatisfiedIn > 0) {
-							// put the sampled predecessor into serSet
-							serSet.add(predecessor);
-
-							// check number of unsatisfied inputs of service s
-							int noOfUnsatisfiedIn = 0;
-							for (ServiceInput in : s.getInputList()) {
-								if (!in.isSatified()) {
-									noOfUnsatisfiedIn++;
-								}
-							}
-
-							if (noOfUnsatisfiedIn == 0) {// shall we move to next dimension for sampling
-								break;
-							}
-						}
-						p_counter++;
 					}
 
-					// remove s from current set
-					iterator.remove();
+					for (int c : c_candidates) {
+						// for -1 , we set 0 probability to its distribution
+						if (m_node[c][j] == -1) {
+							discreteProbabilities[c] = 0;
+
+						} else {
+							discreteProbabilities[c] = m_node[c][j] / sum_proba;
+						}
+					}
+
+					// sample one predecessor from j
+					int indexOfPredecessor = sampling(c_candidates, discreteProbabilities, random)[0];
+
+					// remove x from numsToGenerate
+					c_candidates = ArrayUtils.removeElement(c_candidates, indexOfPredecessor);
+
+					Service predecessor = WSCInitializer.Index2ServiceMap.get(indexOfPredecessor);
+					// reset satisfactions of predecessor inputs to false
+					if (predecessor.getOutputList() != null) {
+						for (ServiceOutput serOutput : predecessor.getOutputList()) {
+							serOutput.setSatified(false);
+						}
+					}
+
+					// create an edge between predecessor and j, return no of matched unsatisfied
+					// inputs if NoOfMatchedUnsatisfiedIn >0
+					int NoOfMatchedUnsatisfiedIn = WSCInitializer.initialWSCPool.createEdge4TwoSer(graph, predecessor,
+							s);
+
+					if (NoOfMatchedUnsatisfiedIn > 0) {
+						// put the sampled predecessor into serSet
+						serQue.add(predecessor);
+
+						// check number of unsatisfied inputs of service s
+						int noOfUnsatisfiedIn = 0;
+						for (ServiceInput in : s.getInputList()) {
+							if (!in.isSatified()) {
+								noOfUnsatisfiedIn++;
+							}
+						}
+
+						if (noOfUnsatisfiedIn == 0) {// shall we move to next dimension for sampling
+							break;
+						}
+					}
+					p_counter++;
 				}
-				sampled_pop.add(sampledIndi);
+
+				// remove s from current set
+				// serSet.remove(s);
 			}
+			sampled_pop.add(sampledIndi);
 
 		}
 

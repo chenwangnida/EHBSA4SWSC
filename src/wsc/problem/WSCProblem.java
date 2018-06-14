@@ -42,7 +42,7 @@ public class WSCProblem {
 		double[][] m_node = ehbsa.initialEHM();
 
 		// random initalize one double size population solutions
-		while (population.size() < WSCInitializer.population_size * 2) {
+		while (population.size() < WSCInitializer.population_size) {
 			WSCIndividual individual = new WSCIndividual();
 			// graph-based representation
 			ServiceGraph graph = graGenerator.generateGraph();
@@ -75,17 +75,18 @@ public class WSCProblem {
 
 			// select first half population into matrix and archive
 			List<WSCIndividual> archive = new ArrayList<WSCIndividual>();
-			for (int m = 0; m < WSCInitializer.population_size; m++) {
+			for (int m = 0; m < WSCInitializer.population_size / 2; m++) {
 				archive.add(population.get(m));
-				ehbsa.setM_pop(archive);
-
 			}
+			//set archive as population for learning EHM
+			ehbsa.setM_pop(archive);
+
 
 			// Learn EHBSA with initial EHM
 			ehbsa.learnEHMfromPop();
 
 			// sample new candidate solutions from EHM
-			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSA(WSCInitializer.population_size,
+			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSA(WSCInitializer.population_size / 2,
 					WSCInitializer.random);
 
 			population.clear();

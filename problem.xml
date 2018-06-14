@@ -2,10 +2,10 @@
 <problemStructure>
     <task>
         <provided>
-     		<instance name="dog"/>
+            <instance name="TouristAgencyPromotion" />
         </provided>
         <wanted>
-            <instance name="mammal" />
+            <instance name="OrderInstance" />
         </wanted>
     </task>
     <solutions />
