@@ -526,36 +526,38 @@ public class InitialWSCPool {
 	 *            can be considered as current service inputs
 	 * @return
 	 */
-	public boolean createEdge4TwoSer(DirectedGraph<String, ServiceEdge> directedGraph, Service predecessor,
-			Service s) {
+	public int createEdge4TwoSer(DirectedGraph<String, ServiceEdge> directedGraph, Service predecessor, Service s) {
 		pConnList.clear();
 		int taskMatchCount = 0;
 		double summt;
 		double sumdst;
 
 		for (int i = 0; i < predecessor.getOutputList().size(); i++) {
-			ServiceOutput serviceOutput = predecessor.getOutputList().get(i);
-			String outputInst = serviceOutput.getOutput();
-			for (int j = 0; j < s.getOutputList().size(); j++) {
-				//To do : only consider inputs status is false
+			ServiceOutput predecessorOutput = predecessor.getOutputList().get(i);
+			// get output of predecessor
+			String outputInst = predecessorOutput.getOutput();
+			for (int j = 0; j < s.getInputList().size(); j++) {
+				// To do : only consider inputs status is false
 				ServiceInput serInputReq = s.getInputList().get(j);
 				if (!serInputReq.isSatified()) {
-					String outputrequ = predecessor.getOutputList().get(j).getOutput();
-					ParamterConn pConn = this.semanticsPool.searchSemanticMatchTypeFromInst(outputInst, outputrequ);
+					// get unsatisfied input of predecessor
+					String intputreq = predecessor.getOutputList().get(j).getOutput();
+					ParamterConn pConn = this.semanticsPool.searchSemanticMatchTypeFromInst(outputInst, intputreq);
 					boolean foundmatched = pConn.isConsidered();
 					if (foundmatched) {
 						serInputReq.setSatified(true);
-						double similarity = Service.CalculateSimilarityMeasure4Concepts(WSCInitializer.ontologyDAG,
-								outputInst, outputrequ, this.semanticsPool);
+						// double similarity =
+						// Service.CalculateSimilarityMeasure4Concepts(WSCInitializer.ontologyDAG,
+						// outputInst, intputreq, this.semanticsPool);
 						pConn.setOutputInst(outputInst);
-						pConn.setOutputrequ(outputrequ);
+						pConn.setOutputrequ(intputreq);
 
 						if (graphOutputListMap.get(outputInst) == null) {
 							pConn.setSourceServiceID("startNode");
 						} else {
-							pConn.setSourceServiceID(serviceOutput.getServiceId());
+							pConn.setSourceServiceID(predecessor.getServiceID());
 						}
-						pConn.setSimilarity(similarity);
+						// pConn.setSimilarity(similarity);
 						pConnList.add(pConn);
 						// break ;
 					}
@@ -563,56 +565,41 @@ public class InitialWSCPool {
 			}
 		}
 
-		for (ServiceOutput tOutput : predecessor.getOutputList()) {
-			boolean sf = tOutput.isSatified();
-			if (sf == true) {
-				taskMatchCount++;
-			}
+		int NoofMatchedUnsatisfiedIn = 0;
+		if (pConnList != null) {
+			NoofMatchedUnsatisfiedIn = pConnList.size();
 		}
 
-		if (taskMatchCount == predecessor.getOutputList().size()) {
-			directedGraph.addVertex("endNode");
+		if (NoofMatchedUnsatisfiedIn > 0) {
+			directedGraph.addVertex(predecessor.getServiceID());
 			sourceSerIdSet.clear();
 			for (ParamterConn p : pConnList) {
 				String sourceSerID = p.getSourceServiceID();
 				sourceSerIdSet.add(sourceSerID);
 			}
 
-			List<ServiceEdge> serEdgeList = new ArrayList<ServiceEdge>();
-			for (String sourceSerID : sourceSerIdSet) {
-				ServiceEdge serEdge = new ServiceEdge(0, 0);
-				serEdge.setSourceService(sourceSerID);
-				serEdge.setTargetService("endNode");
-				for (ParamterConn p : pConnList) {
-					if (p.getSourceServiceID().equals(sourceSerID)) {
-						serEdge.getpConnList().add(p);
-					}
-				}
-				serEdgeList.add(serEdge);
-			}
+			ServiceEdge serEdge = new ServiceEdge(0, 0);
+			serEdge.setSourceService(predecessor.getServiceID());
+			serEdge.setTargetService(s.getServiceID());
+			serEdge.getpConnList().addAll(pConnList);
 
-			for (ServiceEdge edge : serEdgeList) {
-				summt = 0.00;
-				sumdst = 0.00;
-				for (int i1 = 0; i1 < edge.getpConnList().size(); i1++) {
-					ParamterConn pCo = edge.getpConnList().get(i1);
-					pCo.setTargetServiceID("endNode");
-					// set OriginalTargetServiceId from the node selected for
-					// mutation.
-					summt += pCo.getMatchType();
-					sumdst += pCo.getSimilarity();
-
-				}
-				int count = edge.getpConnList().size();
-				edge.setAvgmt(summt / count);
-				edge.setAvgsdt(sumdst / count);
-				directedGraph.addEdge(edge.getSourceService(), "endNode", edge);
+			summt = 0.00;
+			sumdst = 0.00;
+			for (int i1 = 0; i1 < serEdge.getpConnList().size(); i1++) {
+				ParamterConn pCo = serEdge.getpConnList().get(i1);
+				pCo.setTargetServiceID(s.getServiceID());
+				summt += pCo.getMatchType();
+				sumdst += pCo.getSimilarity();
 			}
-			return true;
+			int count = serEdge.getpConnList().size();
+			serEdge.setAvgmt(summt / count);
+			serEdge.setAvgsdt(sumdst / count);
+			directedGraph.addEdge(serEdge.getSourceService(), s.getServiceID(), serEdge);
+			// }
+			return NoofMatchedUnsatisfiedIn;
 		}
 
-		return false;
-
+		return NoofMatchedUnsatisfiedIn;
 	}
 
 	// public void createGraphService4Mutation(List<String> combinedInputs,
