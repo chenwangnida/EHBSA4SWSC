@@ -2,6 +2,7 @@ package ehbsa;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -125,11 +126,10 @@ public class EHBSA {
 			}
 
 			if (serSet.size() != 0) {
-				for (Service s : serSet) {
 
-					// set counter for number of unsatisfied inputs of s
-					int noOfunsatisfiedIn = 0;
-
+				Iterator<Service> iterator = serSet.iterator();
+				while (iterator.hasNext()) {
+					Service s = iterator.next();
 					// set the position counter
 					int p_counter = 0;
 
@@ -192,12 +192,10 @@ public class EHBSA {
 							}
 						}
 						p_counter++;
-
 					}
 
-					// all inputs are satisfied move j to next element in serSet, and remove current
-					// one in
-
+					// remove s from current set
+					iterator.remove();
 				}
 			}
 
