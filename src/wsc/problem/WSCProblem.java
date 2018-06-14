@@ -40,7 +40,7 @@ public class WSCProblem {
 		EHBSA ehbsa = new EHBSA(WSCInitializer.dimension_size, WSCInitializer.dimension_size);
 
 		double[][] m_node = ehbsa.initialEHM();
-		
+
 		// random initalize one double size population solutions
 		while (population.size() < WSCInitializer.population_size * 2) {
 			WSCIndividual individual = new WSCIndividual();
@@ -81,9 +81,12 @@ public class WSCProblem {
 
 			}
 
-			// Learn EHBSA with initial ehm
+			// Learn EHBSA with initial EHM
+			ehbsa.learnEHMfromPop();
 
-			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSA(WSCInitializer.population_size, WSCInitializer.random);
+			// sample new candidate solutions from EHM
+			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSA(WSCInitializer.population_size,
+					WSCInitializer.random);
 
 			population.clear();
 

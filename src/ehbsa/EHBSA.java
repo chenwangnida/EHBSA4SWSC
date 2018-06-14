@@ -34,6 +34,12 @@ public class EHBSA {
 		m_node = new double[m_i][m_j]; // initial an edge histogram matrix (NHM)
 	}
 
+	/**
+	 * initial correct entries for EHM as we only consider the dependencies in a
+	 * full service dependency graph.
+	 *
+	 * @param NULL
+	 */
 	public double[][] initialEHM() {
 
 		// set -1 to all entries in EHM
@@ -74,20 +80,11 @@ public class EHBSA {
 		return m_node;
 	}
 
-	public final void setBias4EHM() {
-
-		int sum_pop_edge = 0;
-		for (WSCIndividual indi : m_pop) {
-			sum_pop_edge += indi.getEdgeSize();
-		}
-
-		m_bRatio = (sum_pop_edge * m_bRatio) / sizeOfSDG; // bias
-	}
-
-	public List<WSCIndividual> sampling4EHBSA(int sampleSize, Random random) {
-
-		List<WSCIndividual> sampled_pop = new ArrayList<WSCIndividual>();
-
+	/**
+	 * Learn EHM from current population.
+	 *
+	 */
+	public double[][] learnEHMfromPop() {
 		// To Do: set bias
 		setBias4EHM();
 
@@ -100,6 +97,39 @@ public class EHBSA {
 				}
 			}
 		}
+
+		// iterate individual
+		for (WSCIndividual indi : m_pop) {
+			Set<ServiceEdge> indiEdges = indi.getDagRepresentation().edgeSet();
+			for (ServiceEdge edge : indiEdges) {
+				int i = WSCInitializer.serviceIndexBiMap.inverse().get(edge.getSourceService());
+				int j = WSCInitializer.serviceIndexBiMap.inverse().get(edge.getTargetService());
+				m_node[i][j] += 1;
+			}
+		}
+		return m_node;
+	}
+
+	public final void setBias4EHM() {
+
+		int sum_pop_edge = 0;
+		for (WSCIndividual indi : m_pop) {
+			sum_pop_edge += indi.getEdgeSize();
+		}
+
+		m_bRatio = (sum_pop_edge * m_bRatio) / sizeOfSDG; // bias
+	}
+
+	/**
+	 * Our proposed guided EHBSA-based backward graph-building algorithm.
+	 *
+	 * @param sampleSize
+	 *            it is equals to the half of the population size
+	 * @param random
+	 */
+	public List<WSCIndividual> sampling4EHBSA(int sampleSize, Random random) {
+
+		List<WSCIndividual> sampled_pop = new ArrayList<WSCIndividual>();
 
 		// EHBSA/WO Sampling sampleSize numbers of individuals
 		for (int no_sample = 0; no_sample < sampleSize; no_sample++) {
