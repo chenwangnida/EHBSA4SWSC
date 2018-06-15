@@ -9,6 +9,7 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
@@ -156,14 +157,14 @@ public class EHBSA {
 			// initial serSet with endSer
 			serQue.add(WSCInitializer.endSer);
 
-			// inital a candidate node list
-			int[] c_candidates = new int[m_j];
-			for (int m = 0; m < m_j; m++) {
-				c_candidates[m] = m;
-			}
-
 			// Iterator<Service> iterator = serSet.iterator();
 			while (!serQue.isEmpty()) {
+				// inital a candidate node list
+				int[] c_candidates = new int[m_j];
+				for (int m = 0; m < m_j; m++) {
+					c_candidates[m] = m;
+				}
+
 				Service s = serQue.remove();
 				// stop condition for outer loop is serSet only contains StartNode
 				if (serQue.size() == 0) {
@@ -189,7 +190,7 @@ public class EHBSA {
 					// sample one predecessor of current j
 					double[] discreteProbabilities = new double[m_j - p_counter];
 
-					// calculate probability and put them into proba[]
+					// calculate probability and put them into probability[]
 					double sum_proba = 0;
 					for (int c : c_candidates) {
 						if (m_node[c][j] != -1) {
@@ -197,16 +198,23 @@ public class EHBSA {
 						}
 					}
 
+					int m = 0;
+
 					for (int c : c_candidates) {
 						// for -1 , we set 0 probability to its distribution
 						if (m_node[c][j] == -1) {
-							discreteProbabilities[c] = 0;
+							discreteProbabilities[m] = 0;
 
 						} else {
-							discreteProbabilities[c] = m_node[c][j] / sum_proba;
+							discreteProbabilities[m] = m_node[c][j] / sum_proba;
 						}
+						m++;
 					}
 
+					double sum = DoubleStream.of(discreteProbabilities).sum();
+					if(sum == 0) {
+						break;
+					}
 					// sample one predecessor from j
 					int indexOfPredecessor = sampling(c_candidates, discreteProbabilities, random)[0];
 
@@ -228,7 +236,9 @@ public class EHBSA {
 
 					if (NoOfMatchedUnsatisfiedIn > 0) {
 						// put the sampled predecessor into serSet
-						serQue.add(predecessor);
+						if(!serQue.contains(predecessor)){
+							serQue.add(predecessor);
+						}
 
 						// check number of unsatisfied inputs of service s
 						int noOfUnsatisfiedIn = 0;

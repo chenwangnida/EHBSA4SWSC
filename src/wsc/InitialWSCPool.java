@@ -540,7 +540,7 @@ public class InitialWSCPool {
 				ServiceInput serInputReq = s.getInputList().get(j);
 				if (!serInputReq.isSatified()) {
 					// get unsatisfied input of predecessor
-					String intputreq = predecessor.getOutputList().get(j).getOutput();
+					String intputreq = serInputReq.getInput();
 					ParamterConn pConn = this.semanticsPool.searchSemanticMatchTypeFromInst(outputInst, intputreq);
 					boolean foundmatched = pConn.isConsidered();
 					if (foundmatched) {
