@@ -78,8 +78,11 @@ public class EHBSA {
 
 			// set 0 to valid entries in EHM
 			for (Service ser : intersection) {
-				m_node[ser.getServiceIndex()][j] = 0;
-				sizeOfSDG++;
+				// I do not consider these service produce its own inputs
+				if (ser.getServiceIndex() != j) {
+					m_node[ser.getServiceIndex()][j] = 0;
+					sizeOfSDG++;
+				}
 			}
 		}
 
@@ -204,19 +207,29 @@ public class EHBSA {
 						// for -1 , we set 0 probability to its distribution
 						if (m_node[c][j] == -1) {
 							discreteProbabilities[m] = 0;
+							// System.out.println(c + " proba: " + discreteProbabilities[m]);
 
 						} else {
 							discreteProbabilities[m] = m_node[c][j] / sum_proba;
+							// System.out.println(c + " proba: " + discreteProbabilities[m]);
+
 						}
 						m++;
 					}
 
 					double sum = DoubleStream.of(discreteProbabilities).sum();
-					if(sum == 0) {
+					if (sum == 0) {
 						break;
 					}
 					// sample one predecessor from j
 					int indexOfPredecessor = sampling(c_candidates, discreteProbabilities, random)[0];
+
+					if (indexOfPredecessor == s.getServiceIndex()) {
+						break;
+					}
+					// if(s.getServiceIndex()==10) {
+					// System.out.println(s.getServiceID());
+					// }
 
 					// remove x from numsToGenerate
 					c_candidates = ArrayUtils.removeElement(c_candidates, indexOfPredecessor);
@@ -236,7 +249,7 @@ public class EHBSA {
 
 					if (NoOfMatchedUnsatisfiedIn > 0) {
 						// put the sampled predecessor into serSet
-						if(!serQue.contains(predecessor)){
+						if (!serQue.contains(predecessor)) {
 							serQue.add(predecessor);
 						}
 
