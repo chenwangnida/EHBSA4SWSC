@@ -142,6 +142,27 @@ public class EHBSA {
 
 		// EHBSA/WO Sampling sampleSize numbers of individuals
 		for (int no_sample = 0; no_sample < sampleSize; no_sample++) {
+
+			// reset satisfactions of all service inputs to false
+
+			for (Service s : WSCInitializer.Index2ServiceMap.values()) {
+				if (s.getInputList() != null) {
+					for (ServiceInput serinput : s.getInputList()) {
+						serinput.setSatified(false);
+					}
+				}
+			}
+
+			// reset satisfactions of all service outputs to false
+
+			for (Service s : WSCInitializer.Index2ServiceMap.values()) {
+				if (s.getOutputList() != null) {
+					for (ServiceOutput seroutput : s.getOutputList()) {
+						seroutput.setSatified(false);
+					}
+				}
+			}
+
 			// initial graph and its corresponding individual
 			ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
 			// graph.addVertex("startNode");
@@ -179,17 +200,22 @@ public class EHBSA {
 				// set the position counter
 				int p_counter = 0;
 
-				// reset satisfactions of service inputs to false
-				if (s.getInputList() != null) {
-					for (ServiceInput serinput : s.getInputList()) {
-						serinput.setSatified(false);
-					}
-				}
-
 				// set one dimension for sampling
 				int j = s.getServiceIndex();
 
-				while (true) {
+				boolean doSampling = false;
+				// if the corresponding service j is satisfied or equals start, then we do not
+				// sampling
+				if (s.getInputList() != null) {
+					for (ServiceInput serIn : s.getInputList()) {
+						if (!serIn.isSatified()) {
+							doSampling = true;
+							break;
+						}
+					}
+				}
+
+				while (doSampling) {
 					// sample one predecessor of current j
 					double[] discreteProbabilities = new double[m_j - p_counter];
 
@@ -236,11 +262,11 @@ public class EHBSA {
 
 					Service predecessor = WSCInitializer.Index2ServiceMap.get(indexOfPredecessor);
 					// reset satisfactions of predecessor inputs to false
-					if (predecessor.getOutputList() != null) {
-						for (ServiceOutput serOutput : predecessor.getOutputList()) {
-							serOutput.setSatified(false);
-						}
-					}
+					// if (predecessor.getOutputList() != null) {
+					// for (ServiceOutput serOutput : predecessor.getOutputList()) {
+					// serOutput.setSatified(false);
+					// }
+					// }
 
 					// create an edge between predecessor and j, return no of matched unsatisfied
 					// inputs if NoOfMatchedUnsatisfiedIn >0
