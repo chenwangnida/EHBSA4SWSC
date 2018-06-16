@@ -13,6 +13,10 @@ import java.util.stream.DoubleStream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.traverse.BreadthFirstIterator;
+import org.jgrapht.traverse.GraphIterator;
+
 import com.google.common.collect.Sets;
 
 import wsc.data.pool.Service;
@@ -216,6 +220,15 @@ public class EHBSA {
 				}
 
 				while (doSampling) {
+					// track successors of s
+					Set<String> allSuccessors = new HashSet<String>();
+					GraphIterator<String, ServiceEdge> iterator = new BreadthFirstIterator<String, ServiceEdge>(graph,
+							s.getServiceID());
+					while (iterator.hasNext()) {
+						String successor = iterator.next();
+						allSuccessors.add(successor);
+					}
+
 					// sample one predecessor of current j
 					double[] discreteProbabilities = new double[m_j - p_counter];
 
@@ -248,49 +261,37 @@ public class EHBSA {
 						break;
 					}
 					// sample one predecessor from j
-					int indexOfPredecessor = sampling(c_candidates, discreteProbabilities, random)[0];
-
-					if (indexOfPredecessor == s.getServiceIndex()) {
-						break;
-					}
-					// if(s.getServiceIndex()==10) {
-					// System.out.println(s.getServiceID());
-					// }
+					int sampledIndexOfPredecessor = sampling(c_candidates, discreteProbabilities, random)[0];
+					String PredecessorStr = WSCInitializer.serviceIndexBiMap.get(sampledIndexOfPredecessor);
 
 					// remove x from numsToGenerate
-					c_candidates = ArrayUtils.removeElement(c_candidates, indexOfPredecessor);
+					c_candidates = ArrayUtils.removeElement(c_candidates, sampledIndexOfPredecessor);
 
-					Service predecessor = WSCInitializer.Index2ServiceMap.get(indexOfPredecessor);
-					// reset satisfactions of predecessor inputs to false
-					// if (predecessor.getOutputList() != null) {
-					// for (ServiceOutput serOutput : predecessor.getOutputList()) {
-					// serOutput.setSatified(false);
-					// }
-					// }
+					if (!allSuccessors.contains(PredecessorStr)) {
+						Service predecessor = WSCInitializer.Index2ServiceMap.get(sampledIndexOfPredecessor);
+						int NoOfMatchedUnsatisfiedIn = WSCInitializer.initialWSCPool.createEdge4TwoSer(graph,
+								predecessor, s);
 
-					// create an edge between predecessor and j, return no of matched unsatisfied
-					// inputs if NoOfMatchedUnsatisfiedIn >0
-					int NoOfMatchedUnsatisfiedIn = WSCInitializer.initialWSCPool.createEdge4TwoSer(graph, predecessor,
-							s);
+						if (NoOfMatchedUnsatisfiedIn > 0) {
+							// put the sampled predecessor into serSet
+							if (!serQue.contains(predecessor)) {
+								serQue.add(predecessor);
+							}
 
-					if (NoOfMatchedUnsatisfiedIn > 0) {
-						// put the sampled predecessor into serSet
-						if (!serQue.contains(predecessor)) {
-							serQue.add(predecessor);
-						}
+							// check number of unsatisfied inputs of service s
+							int noOfUnsatisfiedIn = 0;
+							for (ServiceInput in : s.getInputList()) {
+								if (!in.isSatified()) {
+									noOfUnsatisfiedIn++;
+								}
+							}
 
-						// check number of unsatisfied inputs of service s
-						int noOfUnsatisfiedIn = 0;
-						for (ServiceInput in : s.getInputList()) {
-							if (!in.isSatified()) {
-								noOfUnsatisfiedIn++;
+							if (noOfUnsatisfiedIn == 0) {// shall we move to next dimension for sampling
+								break;
 							}
 						}
-
-						if (noOfUnsatisfiedIn == 0) {// shall we move to next dimension for sampling
-							break;
-						}
 					}
+
 					p_counter++;
 				}
 

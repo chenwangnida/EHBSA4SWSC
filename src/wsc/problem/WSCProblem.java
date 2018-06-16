@@ -62,6 +62,25 @@ public class WSCProblem {
 			// sort the individuals according to the fitness
 			Collections.sort(population);
 
+			// Debug Test
+			for (WSCIndividual indi : population) {
+				if (indi.getDagRepresentation().containsEdge("startNode", "serv212250832")
+						&& indi.getDagRepresentation().containsEdge("serv212250832", "serv1805915141")
+						&& indi.getDagRepresentation().containsEdge("serv1805915141", "serv1113231355")
+						&& indi.getDagRepresentation().containsEdge("serv1113231355", "serv1182663588")
+						&& indi.getDagRepresentation().containsEdge("serv1182663588", "serv559411997")
+						&& indi.getDagRepresentation().containsEdge("serv559411997", "serv2014211840")
+						&& indi.getDagRepresentation().containsEdge("serv2014211840", "serv1321528054")
+						&& indi.getDagRepresentation().containsEdge("serv1321528054", "serv628844230")
+						&& indi.getDagRepresentation().containsEdge("serv628844230", "serv2083644073")
+						&& indi.getDagRepresentation().containsEdge("serv2083644073", "serv1460392520")
+						&& indi.getDagRepresentation().containsEdge("serv1460392520", "endNode")
+						&& indi.getDagRepresentation().vertexSet().size() == 12) {
+
+					System.out.println(indi.getFitness() + ";" + indi.getDagRepresentation());
+				}
+			}
+
 			// update best individual so far
 			if (iteration == 0) {
 				WSCInitializer.bestFitnessSoFar.add(population.get(0));
@@ -78,9 +97,8 @@ public class WSCProblem {
 			for (int m = 0; m < WSCInitializer.population_size / 2; m++) {
 				archive.add(population.get(m));
 			}
-			//set archive as population for learning EHM
+			// set archive as population for learning EHM
 			ehbsa.setM_pop(archive);
-
 
 			// Learn EHBSA with initial EHM
 			ehbsa.learnEHMfromPop();
@@ -107,6 +125,7 @@ public class WSCProblem {
 
 			iteration += 1;
 		}
+
 		writeLogs();
 
 	}
@@ -117,6 +136,12 @@ public class WSCProblem {
 			for (int i = 0; i < WSCInitializer.bestFitnessSoFar.size(); i++) {
 				writer.append(String.format("%d %d %d %f\n", i, WSCInitializer.initTime.get(i),
 						WSCInitializer.time.get(i), WSCInitializer.bestFitnessSoFar.get(i).fitness));
+
+				// test print out all individuals
+				// writer.append("\n");
+				// writer.append(WSCInitializer.bestFitnessSoFar.get(i)
+				// .getStrRepresentation());
+
 			}
 			writer.append(WSCInitializer.bestFitnessSoFar.get(WSCInitializer.bestFitnessSoFar.size() - 1)
 					.getStrRepresentation());
