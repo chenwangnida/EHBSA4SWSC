@@ -63,23 +63,32 @@ public class WSCProblem {
 			Collections.sort(population);
 
 			// Debug Test
-			for (WSCIndividual indi : population) {
-				if (indi.getDagRepresentation().containsEdge("startNode", "serv212250832")
-						&& indi.getDagRepresentation().containsEdge("serv212250832", "serv1805915141")
-						&& indi.getDagRepresentation().containsEdge("serv1805915141", "serv1113231355")
-						&& indi.getDagRepresentation().containsEdge("serv1113231355", "serv1182663588")
-						&& indi.getDagRepresentation().containsEdge("serv1182663588", "serv559411997")
-						&& indi.getDagRepresentation().containsEdge("serv559411997", "serv2014211840")
-						&& indi.getDagRepresentation().containsEdge("serv2014211840", "serv1321528054")
-						&& indi.getDagRepresentation().containsEdge("serv1321528054", "serv628844230")
-						&& indi.getDagRepresentation().containsEdge("serv628844230", "serv2083644073")
-						&& indi.getDagRepresentation().containsEdge("serv2083644073", "serv1460392520")
-						&& indi.getDagRepresentation().containsEdge("serv1460392520", "endNode")
-						&& indi.getDagRepresentation().vertexSet().size() == 12) {
-
-					System.out.println(indi.getFitness() + ";" + indi.getDagRepresentation());
-				}
-			}
+			// for (WSCIndividual indi : population) {
+			// if (indi.getDagRepresentation().containsEdge("startNode", "serv212250832")
+			// && indi.getDagRepresentation().containsEdge("serv212250832",
+			// "serv1805915141")
+			// && indi.getDagRepresentation().containsEdge("serv1805915141",
+			// "serv1113231355")
+			// && indi.getDagRepresentation().containsEdge("serv1113231355",
+			// "serv1182663588")
+			// && indi.getDagRepresentation().containsEdge("serv1182663588",
+			// "serv559411997")
+			// && indi.getDagRepresentation().containsEdge("serv559411997",
+			// "serv2014211840")
+			// && indi.getDagRepresentation().containsEdge("serv2014211840",
+			// "serv1321528054")
+			// && indi.getDagRepresentation().containsEdge("serv1321528054",
+			// "serv628844230")
+			// && indi.getDagRepresentation().containsEdge("serv628844230",
+			// "serv2083644073")
+			// && indi.getDagRepresentation().containsEdge("serv2083644073",
+			// "serv1460392520")
+			// && indi.getDagRepresentation().containsEdge("serv1460392520", "endNode")
+			// && indi.getDagRepresentation().vertexSet().size() == 12) {
+			//
+			// System.out.println(indi.getFitness() + ";" + indi.getDagRepresentation());
+			// }
+			// }
 
 			// update best individual so far
 			if (iteration == 0) {
