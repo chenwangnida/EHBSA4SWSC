@@ -124,9 +124,10 @@ public class WSCEvaluation {
 			return (WSCInitializer.MAXIMUM_COST - cost) / (WSCInitializer.MAXIMUM_COST - WSCInitializer.MINIMUM_COST);
 	}
 
-	public static double getLongestPathVertexList(DirectedGraph<String, ServiceEdge> g,
+	public double getLongestPathVertexList(DirectedGraph<String, ServiceEdge> g,
 			Map<String, double[]> serQoSMap) {
 		// A algorithm to find all paths
+		System.out.println("Size: " + g.vertexSet().size() + "Print: " + g.toString());
 		AllDirectedPaths<String, ServiceEdge> allPath = new AllDirectedPaths<String, ServiceEdge>(g);
 		List<GraphPath<String, ServiceEdge>> pathList = allPath.getAllPaths("startNode", "endNode", true, null);
 		double maxTime = 0;
