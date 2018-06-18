@@ -3,9 +3,10 @@ package wsc.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jgraph.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
 
-public class ServiceEdge extends DefaultEdge implements Cloneable {
+
+public class ServiceEdge extends DefaultWeightedEdge implements Cloneable {
 
 	String SourceService;
 	String TargetService;
@@ -20,23 +21,18 @@ public class ServiceEdge extends DefaultEdge implements Cloneable {
 
 	public ServiceEdge(double avgmt, double avgsdt) {
 		super();
-		source = this.getSource();
-		target = this.getTarget();
 		this.avgmt = avgmt;
 		this.avgsdt = avgsdt;
 	}
 
-	@Override
-	public void setSource(Object arg0) {
-		// TODO Auto-generated method stub
-		super.setSource(arg0);
-	}
+
 
 	@Override
-	public void setTarget(Object arg0) {
+	protected double getWeight() {
 		// TODO Auto-generated method stub
-		super.setTarget(arg0);
+		return super.getWeight();
 	}
+
 
 	@Override
 	public Object getSource() {
@@ -102,48 +98,5 @@ public class ServiceEdge extends DefaultEdge implements Cloneable {
 		return this.avgmt + ";" + this.avgsdt + super.toString();
 		// return super.toString();
 	}
-
-	// @Override
-	// public int hashCode() {
-	// final int prime = 31;
-	// int result = 1;
-	// result = prime * result + ((SourceService == null) ? 0 :
-	// SourceService.hashCode());
-	// result = prime * result + ((TargetService == null) ? 0 :
-	// TargetService.hashCode());
-	// long temp;
-	// temp = Double.doubleToLongBits(avgmt);
-	// result = prime * result + (int) (temp ^ (temp >>> 32));
-	// temp = Double.doubleToLongBits(avgsdt);
-	// result = prime * result + (int) (temp ^ (temp >>> 32));
-	// return result;
-	// }
-	//
-	//
-	// @Override
-	// public boolean equals(Object obj) {
-	// if (this == obj)
-	// return true;
-	// if (obj == null)
-	// return false;
-	// if (getClass() != obj.getClass())
-	// return false;
-	// ServiceEdge other = (ServiceEdge) obj;
-	// if (SourceService == null) {
-	// if (other.SourceService != null)
-	// return false;
-	// } else if (!SourceService.equals(other.SourceService))
-	// return false;
-	// if (TargetService == null) {
-	// if (other.TargetService != null)
-	// return false;
-	// } else if (!TargetService.equals(other.TargetService))
-	// return false;
-	// if (Double.doubleToLongBits(avgmt) != Double.doubleToLongBits(other.avgmt))
-	// return false;
-	// if (Double.doubleToLongBits(avgsdt) != Double.doubleToLongBits(other.avgsdt))
-	// return false;
-	// return true;
-	// }
 
 }

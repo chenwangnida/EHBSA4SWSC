@@ -7,12 +7,14 @@ import java.util.Set;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AllDirectedPaths;
+import org.jgrapht.alg.shortestpath.BellmanFordShortestPath;
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 
 import wsc.graph.ServiceEdge;
 
 public class WSCEvaluation {
 
-	public void aggregationAttribute(WSCIndividual individual, DirectedGraph<String, ServiceEdge> directedGraph) {
+	public void aggregationAttribute(WSCIndividual individual, DefaultDirectedWeightedGraph<String, ServiceEdge> directedGraph) {
 
 		double a = 1.0;
 		double r = 1.0;
@@ -37,7 +39,7 @@ public class WSCEvaluation {
 		}
 
 		// set time aggregation
-		t = getLongestPathVertexList(directedGraph, WSCInitializer.serviceQoSMap);
+		t = getLongestPathVertexListUsingBellmanFordShortestPath(directedGraph, WSCInitializer.serviceQoSMap);
 
 		// set mt,dst aggregation
 
@@ -124,8 +126,31 @@ public class WSCEvaluation {
 			return (WSCInitializer.MAXIMUM_COST - cost) / (WSCInitializer.MAXIMUM_COST - WSCInitializer.MINIMUM_COST);
 	}
 
-	public double getLongestPathVertexList(DirectedGraph<String, ServiceEdge> g,
-			Map<String, double[]> serQoSMap) {
+	public double getLongestPathVertexListUsingBellmanFordShortestPath(
+			DefaultDirectedWeightedGraph<String, ServiceEdge> g, Map<String, double[]> serQoSMap) {
+		// A algorithm to find all paths
+		for (String vertice : g.vertexSet()) {
+			if (!vertice.equals("startNode")) {
+				double responseTime = 0;
+				if (!vertice.equals("endNode")) {
+					responseTime = serQoSMap.get(vertice)[WSCInitializer.TIME];
+				} else {
+					responseTime = 0;
+				}
+				for (ServiceEdge edge : g.incomingEdgesOf(vertice)) {
+					// set it negative because we aim to find longest path
+					g.setEdgeWeight(edge, -responseTime);
+				}
+			}
+		}
+
+		GraphPath<String, ServiceEdge> pathList = BellmanFordShortestPath.findPathBetween(g, "startNode", "endNode");
+		double maxTime = -pathList.getWeight();
+		return maxTime;
+
+	}
+
+	public double getLongestPathVertexList(DirectedGraph<String, ServiceEdge> g, Map<String, double[]> serQoSMap) {
 		// A algorithm to find all paths
 		System.out.println("Size: " + g.vertexSet().size() + "Print: " + g.toString());
 		AllDirectedPaths<String, ServiceEdge> allPath = new AllDirectedPaths<String, ServiceEdge>(g);
