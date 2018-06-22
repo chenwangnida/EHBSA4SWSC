@@ -346,6 +346,9 @@ public class InitialWSCPool {
 
 			numLayer++;
 			layers.put(numLayer, services4Layer);
+			for (Service s : services4Layer) {
+				s.setLayer(numLayer);
+			}
 			services4Layer.forEach(service -> this.getServiceSequence().add(service));
 
 		} while (true);

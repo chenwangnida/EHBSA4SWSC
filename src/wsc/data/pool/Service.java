@@ -32,6 +32,7 @@ public class Service implements Comparable<Service> {
 	private static List<ParamterConn> pConnList0 = new ArrayList<ParamterConn>();
 	private static List<ServiceInput> inputList0 = new ArrayList<ServiceInput>();
 	private static Set<String> sourceSerIdSet = new HashSet<String>();
+	private int layer;
 
 	private double score;
 
@@ -82,7 +83,6 @@ public class Service implements Comparable<Service> {
 	public Service(String serviceID) {
 		this.serviceID = serviceID;
 	}
-
 
 	public int getServiceIndex() {
 		return serviceIndex;
@@ -158,7 +158,8 @@ public class Service implements Comparable<Service> {
 	 * @param intputList
 	 * @return boolean
 	 */
-	public boolean searchServiceGraphMatchFromInputSet(List<ServiceOutput>graphOutputs, SemanticsPool semanticsPool, Service service, DirectedGraph<String, ServiceEdge> directedGraph,
+	public boolean searchServiceGraphMatchFromInputSet(List<ServiceOutput> graphOutputs, SemanticsPool semanticsPool,
+			Service service, DirectedGraph<String, ServiceEdge> directedGraph,
 			Map<String, Service> graphOutputListMap) {
 		pConnList0.clear();
 		inputList0.clear();
@@ -166,19 +167,19 @@ public class Service implements Comparable<Service> {
 		double sumdst = 0.00;
 
 		int inputMatchCount = 0;
-		
-//		if(service.getServiceID().equals("kodakdigcamera_price_service")){
-//			System.out.println("enter debug");
-//		}
+
+		// if(service.getServiceID().equals("kodakdigcamera_price_service")){
+		// System.out.println("enter debug");
+		// }
 		// some web service do not have any input instance
-		if (service.getInputList().size() == 0 || service.getInputList() ==null) {
+		if (service.getInputList().size() == 0 || service.getInputList() == null) {
 			directedGraph.addVertex(service.getServiceID());
 			ServiceEdge serEdge = new ServiceEdge(1, 1);
-			directedGraph.addEdge("startNode", service.getServiceID(), serEdge);			
+			directedGraph.addEdge("startNode", service.getServiceID(), serEdge);
 			return true;
 		}
 
-		//some web services at least have one input instance
+		// some web services at least have one input instance
 		for (ServiceInput serinput : service.getInputList()) {
 			serinput.setSatified(false);
 			inputList0.add(serinput);
@@ -203,9 +204,9 @@ public class Service implements Comparable<Service> {
 
 							pConn.setSourceServiceID("startNode");
 						} else {
-//							pConn.setSourceServiceID(graphOutputListMap.get(giveninput).getServiceID());
+							// pConn.setSourceServiceID(graphOutputListMap.get(giveninput).getServiceID());
 							pConn.setSourceServiceID(serviceOutput.getServiceId());
-							
+
 						}
 						double similarity = CalculateSimilarityMeasure4Concepts(WSCInitializer.ontologyDAG, giveninput,
 								existInput, semanticsPool);
@@ -284,7 +285,8 @@ public class Service implements Comparable<Service> {
 	 * @param intputList
 	 * @return boolean
 	 */
-	public boolean searchServiceGraphMatchFromDefinedInputSet(List<ServiceOutput>graphOutputs, SemanticsPool semanticsPool, Service service, DirectedGraph<String, ServiceEdge> directedGraph,
+	public boolean searchServiceGraphMatchFromDefinedInputSet(List<ServiceOutput> graphOutputs,
+			SemanticsPool semanticsPool, Service service, DirectedGraph<String, ServiceEdge> directedGraph,
 			Map<String, Service> graphOutputListMap, List<String> ioNodeInputs) {
 		pConnList0.clear();
 		inputList0.clear();
@@ -292,16 +294,16 @@ public class Service implements Comparable<Service> {
 		double sumdst = 0.00;
 
 		int inputMatchCount = 0;
-		
+
 		// some web service do not have any input instance
 		if (service.getInputList().size() == 0) {
 			directedGraph.addVertex(service.getServiceID());
 			ServiceEdge serEdge = new ServiceEdge(1, 1);
-			directedGraph.addEdge("startNode", service.getServiceID(), serEdge);			
+			directedGraph.addEdge("startNode", service.getServiceID(), serEdge);
 			return true;
 		}
 
-		//some web services at least have one input instance
+		// some web services at least have one input instance
 
 		for (ServiceInput serinput : service.getInputList()) {
 			serinput.setSatified(false);
@@ -326,7 +328,7 @@ public class Service implements Comparable<Service> {
 
 							pConn.setSourceServiceID("startNode");
 						} else {
-//							pConn.setSourceServiceID(graphOutputListMap.get(giveninput).getServiceID());
+							// pConn.setSourceServiceID(graphOutputListMap.get(giveninput).getServiceID());
 							pConn.setSourceServiceID(serviceOutput.getServiceId());
 
 						}
@@ -494,6 +496,13 @@ public class Service implements Comparable<Service> {
 		return depth;
 
 	}
-	
+
+	public int getLayer() {
+		return layer;
+	}
+
+	public void setLayer(int layer) {
+		this.layer = layer;
+	}
 
 }
