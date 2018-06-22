@@ -14,7 +14,8 @@ import wsc.graph.ServiceEdge;
 
 public class WSCEvaluation {
 
-	public void aggregationAttribute(WSCIndividual individual, DefaultDirectedWeightedGraph<String, ServiceEdge> directedGraph) {
+	public void aggregationAttribute(WSCIndividual individual,
+			DefaultDirectedWeightedGraph<String, ServiceEdge> directedGraph) {
 
 		double a = 1.0;
 		double r = 1.0;

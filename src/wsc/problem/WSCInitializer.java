@@ -156,6 +156,7 @@ public class WSCInitializer {
 			e.printStackTrace();
 		}
 
+
 		// initialize all maps additionally with start and end
 		initializeMaps(initialWSCPool.getServiceSequence());
 
@@ -173,8 +174,9 @@ public class WSCInitializer {
 				+ (initialWSCPool.getSwsPool().getServiceList().size() + initialWSCPool.getServiceSequence().size())
 				+ "; all relevant service: " + initialWSCPool.getServiceSequence().size() + "; semanticMatrix: "
 				+ semanticMatrix.size());
+		
+		MapLayerSer2LayerIndex(initialWSCPool.getLayers());
 
-		// MapLayerSer2LayerIndex(initialWSCPool.getLayers());
 
 		calculateNormalisationBounds(initialWSCPool.getServiceSequence(),
 				initialWSCPool.getSemanticsPool().getOwlInstHashMap().size());
@@ -468,6 +470,9 @@ public class WSCInitializer {
 		serviceQoSMap.put(startSer.getServiceID(), startSer.getQos());
 		serviceIndexBiMap.put(i, startSer.getServiceID());
 		Index2ServiceMap.put(i, startSer);
+		List<Integer> layer0 = new ArrayList<Integer>();
+		layer0.add(startSer.serviceIndex);
+		layers4SerIndex.put(i, layer0);
 		i++;
 
 		for (Service service : serviceList) {
@@ -486,6 +491,9 @@ public class WSCInitializer {
 		serviceQoSMap.put(endSer.getServiceID(), endSer.getQos());
 		serviceIndexBiMap.put(i, endSer.getServiceID());
 		Index2ServiceMap.put(i, endSer);
+		List<Integer> layerLast = new ArrayList<Integer>();
+		layerLast.add(endSer.serviceIndex);
+		layers4SerIndex.put(i, layerLast);
 
 	}
 

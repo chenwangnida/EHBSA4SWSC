@@ -545,19 +545,8 @@ public class InitialWSCPool {
 					boolean foundmatched = pConn.isConsidered();
 					if (foundmatched) {
 						serInputReq.setSatified(true);
-						// double similarity =
-						// Service.CalculateSimilarityMeasure4Concepts(WSCInitializer.ontologyDAG,
-						// outputInst, intputreq, this.semanticsPool);
-//						pConn.setOutputInst(outputInst);
-//						pConn.setOutputrequ(intputreq);
-
-//						if (graphOutputListMap.get(outputInst) == null) {
-//							pConn.setSourceServiceID("startNode");
-//						} else {
-							pConn.setSourceServiceID(predecessor.getServiceID());
-							pConn.setTargetServiceID(s.getServiceID());
-						// }
-						// pConn.setSimilarity(similarity);
+						pConn.setSourceServiceID(predecessor.getServiceID());
+						pConn.setTargetServiceID(s.getServiceID());
 						pConnList.add(pConn);
 						// break ;
 					}
@@ -572,6 +561,7 @@ public class InitialWSCPool {
 
 		if (NoofMatchedUnsatisfiedIn > 0) {
 			directedGraph.addVertex(predecessor.getServiceID());
+			directedGraph.addVertex(s.getServiceID());
 
 			ServiceEdge serEdge = new ServiceEdge(0, 0);
 			serEdge.setSourceService(predecessor.getServiceID());
