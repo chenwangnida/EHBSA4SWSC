@@ -186,10 +186,7 @@ public class EHBSA {
 			while (!serQue.isEmpty()) { // one stop condition for returning sampled individual
 
 				Service s = serQue.remove();
-				
-				if(s.getServiceID().equals("serv519685972")) {
-					System.out.println("debug");
-				}
+
 				// one condition for moving to next service
 				if (s.getServiceID() == "startNode") {
 					continue;
@@ -320,11 +317,6 @@ public class EHBSA {
 
 								if (PredecessorStr == s.getServiceID()) {
 									System.out.println("error break");
-								}
-								
-								
-								if(PredecessorStr.equals("serv1212369758")) {
-									System.out.println("debug");
 								}
 
 								// remove x from numsToGenerate
