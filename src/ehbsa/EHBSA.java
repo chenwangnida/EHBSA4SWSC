@@ -186,6 +186,10 @@ public class EHBSA {
 			while (!serQue.isEmpty()) { // one stop condition for returning sampled individual
 
 				Service s = serQue.remove();
+				
+				if(s.getServiceID().equals("serv519685972")) {
+					System.out.println("debug");
+				}
 				// one condition for moving to next service
 				if (s.getServiceID() == "startNode") {
 					continue;
@@ -207,7 +211,7 @@ public class EHBSA {
 				int j = s.getServiceIndex();
 
 				// flag for startNode
-//				boolean startNodeSatisfied = false;
+				// boolean startNodeSatisfied = false;
 
 				// startNode is always checked in advance
 				if ((m_node[0][j] != -1)) {
@@ -231,7 +235,7 @@ public class EHBSA {
 						}
 
 						if (noOfUnsatisfiedIn == 0) {// shall we move to next dimension for sampling
-							break;// no need to execute sampling for s
+							continue;// no need to execute sampling for s
 						}
 						// if start can fulfill any input of s
 						// startNodeSatisfied = true;
@@ -240,7 +244,7 @@ public class EHBSA {
 
 				// identify the layer-related indexes;
 				nextDimensionLoop: for (int layerNo = s.getLayer(); layerNo >= 0; layerNo--) {
-					for (int entry : WSCInitializer.layers4SerIndex.get(layerNo)) {
+					nextLayerLoop: for (int entry : WSCInitializer.layers4SerIndex.get(layerNo)) {
 						if (m_node[entry][j] != -1) { // sample from this layer
 
 							// set the position counter
@@ -269,7 +273,7 @@ public class EHBSA {
 
 								// break inner loop to sample from next dimension
 								if (layer.size() == p_counter) {
-									break; // break and sample from net layer
+									break nextLayerLoop; // break and sample from net layer
 								}
 
 								// sample one predecessor of current j
@@ -302,7 +306,7 @@ public class EHBSA {
 
 								double sum = DoubleStream.of(discreteProbabilities).sum();
 								if (sum == 0) {
-									break;
+									break nextLayerLoop;
 								}
 
 								// if start must be sampled first if it is in c_candidates and removed from
@@ -316,6 +320,11 @@ public class EHBSA {
 
 								if (PredecessorStr == s.getServiceID()) {
 									System.out.println("error break");
+								}
+								
+								
+								if(PredecessorStr.equals("serv1212369758")) {
+									System.out.println("debug");
 								}
 
 								// remove x from numsToGenerate
