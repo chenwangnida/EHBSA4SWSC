@@ -183,35 +183,63 @@ public class EHBSA {
 			// initial serSet with endSer
 			serQue.add(WSCInitializer.endSer);
 
-			while (!serQue.isEmpty()) {
+			while (!serQue.isEmpty()) { // one stop condition for returning sampled individual
 
 				Service s = serQue.remove();
-				// one stop condition for outer loop is serSet contains StartNode
-				if (serQue.size() == 0) {
-					if (s.getServiceID() == "startNode") {
-						break;
+				// one condition for moving to next service
+				if (s.getServiceID() == "startNode") {
+					continue;
+				}
+
+				// another condition for moving to next service
+				boolean Move2next = true;
+				if (s.getInputList() != null) {
+					for (ServiceInput input : s.getInputList()) {
+						Move2next &= input.isSatified();
 					}
+				}
+
+				if (Move2next == true) {
+					continue;
 				}
 
 				// set one dimension for sampling
 				int j = s.getServiceIndex();
 
-				boolean doSampling = false;
-				// if the corresponding service j is satisfied or equals start, then we do not
-				// sampling
-				if (s.getInputList() != null) {
-					for (ServiceInput serIn : s.getInputList()) {
-						if (!serIn.isSatified()) {
-							doSampling = true;
-							break;
+				// flag for startNode
+//				boolean startNodeSatisfied = false;
+
+				// startNode is always checked in advance
+				if ((m_node[0][j] != -1)) {
+					// write a loop to check their dependency
+
+					int NoOfMatchedUnsatisfiedIn = WSCInitializer.initialWSCPool.createEdge4TwoSer(graph,
+							WSCInitializer.startSer, s);
+
+					if (NoOfMatchedUnsatisfiedIn > 0) {
+						// put the sampled predecessor into serSet
+						if (!serQue.contains(WSCInitializer.startSer)) {
+							serQue.add(WSCInitializer.startSer);
 						}
+
+						// check number of unsatisfied inputs of service s
+						int noOfUnsatisfiedIn = 0;
+						for (ServiceInput in : s.getInputList()) {
+							if (!in.isSatified()) {
+								noOfUnsatisfiedIn++;
+							}
+						}
+
+						if (noOfUnsatisfiedIn == 0) {// shall we move to next dimension for sampling
+							break;// no need to execute sampling for s
+						}
+						// if start can fulfill any input of s
+						// startNodeSatisfied = true;
 					}
 				}
 
 				// identify the layer-related indexes;
-				System.out.println("currentLayer" + s.getLayer() + "Total Layer:"
-						+ WSCInitializer.layers4SerIndex.values().size());
-				for (int layerNo = s.getLayer(); layerNo >= 0; layerNo--) {
+				nextDimensionLoop: for (int layerNo = s.getLayer(); layerNo >= 0; layerNo--) {
 					for (int entry : WSCInitializer.layers4SerIndex.get(layerNo)) {
 						if (m_node[entry][j] != -1) { // sample from this layer
 
@@ -225,7 +253,24 @@ public class EHBSA {
 								c_candidates[m] = layer.get(m);
 							}
 
-							while (doSampling) {
+							samplingLoop: while (true) {
+
+								// break nextDimensionLoop condition for sampling next dimension
+								int noOfUnsatisfiedIn = 0;
+								for (ServiceInput in : s.getInputList()) {
+									if (!in.isSatified()) {
+										noOfUnsatisfiedIn++;
+									}
+								}
+
+								if (noOfUnsatisfiedIn == 0) {// shall we move to next dimension for sampling
+									break nextDimensionLoop;
+								}
+
+								// break inner loop to sample from next dimension
+								if (layer.size() == p_counter) {
+									break; // break and sample from net layer
+								}
 
 								// sample one predecessor of current j
 								double[] discreteProbabilities = new double[layer.size() - p_counter];
@@ -262,13 +307,8 @@ public class EHBSA {
 
 								// if start must be sampled first if it is in c_candidates and removed from
 								// array c_candidates
-								int sampledIndexOfPredecessor = -1;
-								if ((m_node[0][j] != -1) && (ArrayUtils.contains(c_candidates, 0))) {
-									sampledIndexOfPredecessor = 0;
-								} else {
-									sampledIndexOfPredecessor = sampling(c_candidates, discreteProbabilities,
-											random)[0];
-								}
+								int sampledIndexOfPredecessor = sampling(c_candidates, discreteProbabilities,
+										random)[0];
 
 								// sample one predecessor from j
 
@@ -286,20 +326,20 @@ public class EHBSA {
 
 								// add predecessor and all services in queue to check their satisfaction for the
 								// exampled node
-								Set<Service> connectedServices = new HashSet<Service>();
+								Set<Service> unsatisfiedSer = new HashSet<Service>();
 
 								Iterator<Service> queIter = serQue.iterator();
 								while (queIter.hasNext()) {
 									Service ser = queIter.next();
 									if (!ser.getServiceID().equals("startNode")) {
-										connectedServices.add(ser);
+										unsatisfiedSer.add(ser);
 									}
 								}
 
-								connectedServices.add(s);
+								unsatisfiedSer.add(s);
 
 								// write a loop to check their dependency
-								for (Service checkedSer : connectedServices) {
+								for (Service checkedSer : unsatisfiedSer) {
 									if (checkedSer.getServiceID() != predecessor.getServiceID()) {
 
 										int NoOfMatchedUnsatisfiedIn = WSCInitializer.initialWSCPool
@@ -310,31 +350,15 @@ public class EHBSA {
 											if (!serQue.contains(predecessor)) {
 												serQue.add(predecessor);
 											}
-
-											// check number of unsatisfied inputs of service s
-											int noOfUnsatisfiedIn = 0;
-											for (ServiceInput in : checkedSer.getInputList()) {
-												if (!in.isSatified()) {
-													noOfUnsatisfiedIn++;
-												}
-											}
-
-											if (noOfUnsatisfiedIn == 0) {// shall we move to next dimension for sampling
-												break;
-											}
 										}
 									}
 								}
-								p_counter++;
+								p_counter++; // if not fully satisfied, keep sampling
 
 							}
-							break;// break the inner loop
 						}
 					}
 				}
-
-				// jump to next element of Qu
-
 			}
 			sampled_pop.add(sampledIndi);
 
