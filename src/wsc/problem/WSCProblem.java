@@ -47,7 +47,8 @@ public class WSCProblem {
 			// graph-based representation
 			ServiceGraph graph = graGenerator.generateGraph();
 			individual.setDagRepresentation(graph);
-
+			System.out.println("Size: " + individual.getDagRepresentation().vertexSet().size() + "Print: "
+					+ individual.getDagRepresentation().toString());
 			eval.aggregationAttribute(individual, graph);
 			eval.calculateFitness(individual);
 			population.add(individual);
