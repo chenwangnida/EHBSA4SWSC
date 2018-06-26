@@ -93,7 +93,7 @@ public class WSCProblem {
 			ehbsa.learnEHMfromPop();
 
 			// sample new candidate solutions from EHM
-			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSA(WSCInitializer.population_size / 2,
+			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSAWithLayer(WSCInitializer.population_size / 2,
 					WSCInitializer.random);
 
 			population.clear();
