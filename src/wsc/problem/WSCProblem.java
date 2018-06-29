@@ -64,7 +64,7 @@ public class WSCProblem {
 
 			// add a local search
 			LocalSearch ls = new LocalSearch();
-			ls.randomSwapOnefromLayers5GroupByFit(population, WSCInitializer.random, graGenerator, eval);
+			ls.subGraphBasedSamplingfromGroups(population, ehbsa, WSCInitializer.random, graGenerator, eval);
 
 			// sort the individuals according to the fitness
 			Collections.sort(population);

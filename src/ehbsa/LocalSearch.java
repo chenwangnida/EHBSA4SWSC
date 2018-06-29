@@ -34,8 +34,8 @@ public class LocalSearch {
 	// fitness
 	// distribution with 20
 	// neighbors
-	public List<WSCIndividual> randomSwapOnefromLayers5GroupByFit(List<WSCIndividual> population, Random random,
-			WSCGraph graGenerator, WSCEvaluation eval) {
+	public List<WSCIndividual> subGraphBasedSamplingfromGroups(List<WSCIndividual> population, EHBSA ehbsa,
+			Random random, WSCGraph graGenerator, WSCEvaluation eval) {
 		int split = 0;
 
 		Collections.sort(population);
@@ -160,7 +160,6 @@ public class LocalSearch {
 
 				ServiceGraph graph = new ServiceGraph(ServiceEdge.class);
 				graph.addVertex("endNode");
-				indi_temp.setDagRepresentation(graph);
 
 				for (Service ver : serSet) {
 					for (ServiceEdge serEdge : subGraph.incomingEdgesOf(ver.getServiceID())) {
@@ -171,19 +170,16 @@ public class LocalSearch {
 						}
 					}
 				}
-				
-				
-				//sample from a given queue and unfinished graph
-				
-				
-				
-				
+
+				// sample from a given queue and unfinished graph
+				ServiceGraph sampledDAG = ehbsa.samplingBasedOnSubGraph(random, graph, serSet);
+
+				indi_temp.setDagRepresentation(sampledDAG);
 
 				// update those inputs of this unsatisfied service
 				// evaluate updated updated_graph
-				// eval.aggregationAttribute(indi_temp, subGraph);
+				eval.aggregationAttribute(indi_temp, sampledDAG);
 				eval.calculateFitness(indi_temp);
-
 				// add
 				indi_neigbouring.add(indi_temp);
 			}
