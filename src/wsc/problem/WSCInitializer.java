@@ -46,7 +46,7 @@ import wsc.owl.bean.OWLClass;
 public class WSCInitializer {
 	// NHSBSA settings
 	public static Random random;
-	public static final int population_size = 200;
+	public static final int population_size = 400;
 	public static int dimension_size;
 	public static final int MAX_NUM_ITERATIONS = 100;
 
@@ -54,7 +54,6 @@ public class WSCInitializer {
 	public static int noOfls = 0;
 	public static double Pls = 0.1; // probability of local search
 	public static int numOfLS = 30; // the size of neighboring space
-	public static int numOfLS4Group = 18;
 	public static int numOfLS5Group = 20;
 
 	public static double Pm = 0.1; // probability of local search

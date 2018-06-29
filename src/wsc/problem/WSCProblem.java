@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ehbsa.EHBSA;
+import ehbsa.LocalSearch;
 import wsc.graph.ServiceGraph;
 
 public class WSCProblem {
@@ -47,8 +48,9 @@ public class WSCProblem {
 			// graph-based representation
 			ServiceGraph graph = graGenerator.generateGraph();
 			individual.setDagRepresentation(graph);
-			System.out.println("Size: " + individual.getDagRepresentation().vertexSet().size() + "Print: "
-					+ individual.getDagRepresentation().toString());
+			// System.out.println("Size: " +
+			// individual.getDagRepresentation().vertexSet().size() + "Print: "
+			// + individual.getDagRepresentation().toString());
 			eval.aggregationAttribute(individual, graph);
 			eval.calculateFitness(individual);
 			population.add(individual);
@@ -60,15 +62,38 @@ public class WSCProblem {
 			long startTime = System.currentTimeMillis();
 			System.out.println("GENERATION " + iteration);
 
+			// add a local search
+			LocalSearch ls = new LocalSearch();
+			ls.randomSwapOnefromLayers5GroupByFit(population, WSCInitializer.random, graGenerator, eval);
+
 			// sort the individuals according to the fitness
 			Collections.sort(population);
 
 			// Debug Test
-			for (WSCIndividual indi : population) {
-				if (indi.getDagRepresentation().containsEdge("serv451892245", "serv451892245")) {
-					System.out.println(indi.getFitness() + ";" + indi.getDagRepresentation());
-				}
-			}
+			// for (WSCIndividual indi : population) {
+			// if (indi.getDagRepresentation().containsEdge("startNode", "serv212250832")
+			// && (indi.getDagRepresentation().containsEdge("serv212250832",
+			// "serv1805915141"))
+			// && (indi.getDagRepresentation().containsEdge("serv1805915141",
+			// "serv1113231355_1"))
+			// && (indi.getDagRepresentation().containsEdge("serv1113231355_1",
+			// "serv1944779607_1"))
+			// && (indi.getDagRepresentation().containsEdge("serv1944779607_1",
+			// "serv1252095821"))
+			// && (indi.getDagRepresentation().containsEdge("serv1252095821",
+			// "serv2014211840_1"))
+			// && (indi.getDagRepresentation().containsEdge("serv2014211840_1",
+			// "serv1321528054"))
+			// && (indi.getDagRepresentation().containsEdge("serv1321528054",
+			// "serv628844230_1"))
+			// && (indi.getDagRepresentation().containsEdge("serv628844230_1",
+			// "serv2083644073"))
+			// && (indi.getDagRepresentation().containsEdge("serv2083644073",
+			// "serv1460392520"))
+			// && (indi.getDagRepresentation().containsEdge("serv1460392520", "endNode"))) {
+			// System.out.println(indi.getFitness() + ";" + indi.getDagRepresentation());
+			// }
+			// }
 
 			// update best individual so far
 			if (iteration == 0) {
@@ -106,8 +131,9 @@ public class WSCProblem {
 				WSCIndividual id_updated = pop_updated.get(m);
 				eval.aggregationAttribute(id_updated, id_updated.getDagRepresentation());
 				eval.calculateFitness(id_updated);
-				System.out.println("Size: " + id_updated.getDagRepresentation().vertexSet().size() + "Print: "
-						+ id_updated.getDagRepresentation().toString());
+				// System.out.println("Size: " +
+				// id_updated.getDagRepresentation().vertexSet().size() + "Print: "
+				// + id_updated.getDagRepresentation().toString());
 				population.add(id_updated);
 			}
 			WSCInitializer.initTime.add(initialization);
