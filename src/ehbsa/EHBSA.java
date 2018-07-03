@@ -579,16 +579,19 @@ public class EHBSA {
 						// write a loop to check their dependency
 						for (Service checkedSer : unsatisfiedSer) {
 							if (checkedSer.getServiceID() != predecessor.getServiceID()) {
+								if (layerNum <= checkedSer.getLayer()) {
 
-								int NoOfMatchedUnsatisfiedIn = WSCInitializer.initialWSCPool.createEdge4TwoSer(graph,
-										predecessor, checkedSer);
+									int NoOfMatchedUnsatisfiedIn = WSCInitializer.initialWSCPool
+											.createEdge4TwoSer(graph, predecessor, checkedSer);
 
-								if (NoOfMatchedUnsatisfiedIn > 0) {
-									// put the sampled predecessor into serSet
-									if (!serQue.contains(predecessor)) {
-										serQue.add(predecessor);
+									if (NoOfMatchedUnsatisfiedIn > 0) {
+										// put the sampled predecessor into serSet
+										if (!serQue.contains(predecessor)) {
+											serQue.add(predecessor);
+										}
 									}
 								}
+
 							}
 						}
 					}
@@ -766,13 +769,16 @@ public class EHBSA {
 					for (Service checkedSer : unsatisfiedSer) {
 						if (checkedSer.getServiceID() != predecessor.getServiceID()) {
 
-							int NoOfMatchedUnsatisfiedIn = WSCInitializer.initialWSCPool.createEdge4TwoSer(g,
-									predecessor, checkedSer);
+							if (layerNum <= checkedSer.getLayer()) {
 
-							if (NoOfMatchedUnsatisfiedIn > 0) {
-								// put the sampled predecessor into serSet
-								if (!serQue.contains(predecessor)) {
-									serQue.add(predecessor);
+								int NoOfMatchedUnsatisfiedIn = WSCInitializer.initialWSCPool.createEdge4TwoSer(g,
+										predecessor, checkedSer);
+
+								if (NoOfMatchedUnsatisfiedIn > 0) {
+									// put the sampled predecessor into serSet
+									if (!serQue.contains(predecessor)) {
+										serQue.add(predecessor);
+									}
 								}
 							}
 						}
