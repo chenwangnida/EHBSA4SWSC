@@ -33,7 +33,7 @@ public class EHBSA {
 	private int m_i; // size of i dimension
 	private int m_j; // size of j dimension
 	double[][] m_node; // a edge histogram matrix (EHM)
-	private double m_bRatio = 0.0002;// a bias for EHM
+	private double m_bRatio;// a bias for EHM
 
 	private int sizeOfSDG;
 
@@ -127,13 +127,14 @@ public class EHBSA {
 	}
 
 	public final void setBias4EHM() {
-
+		m_bRatio = 0.0002;// defined by users
 		int sum_pop_edge = 0;
 		for (WSCIndividual indi : m_pop) {
 			sum_pop_edge += indi.getEdgeSize();
 		}
 
 		m_bRatio = (sum_pop_edge * m_bRatio) / sizeOfSDG; // bias
+//		System.out.println(m_bRatio+ "test bias = sum / size of FDS " + sum_pop_edge + "\\" +  sizeOfSDG );
 	}
 
 	/**
