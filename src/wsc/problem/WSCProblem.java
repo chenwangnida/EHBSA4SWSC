@@ -63,8 +63,9 @@ public class WSCProblem {
 			System.out.println("GENERATION " + iteration);
 
 			// add a local search
-			LocalSearch ls = new LocalSearch();
-			ls.subGraphBasedSamplingfromGroups(population, ehbsa, WSCInitializer.random, graGenerator, eval);
+//			LocalSearch ls = new LocalSearch();
+			// ls.subGraphBasedSamplingfromGroups(population, ehbsa, WSCInitializer.random,
+			// graGenerator, eval);
 
 			// sort the individuals according to the fitness
 			Collections.sort(population);
