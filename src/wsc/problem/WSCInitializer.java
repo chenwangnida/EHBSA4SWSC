@@ -46,7 +46,7 @@ import wsc.owl.bean.OWLClass;
 public class WSCInitializer {
 	// NHSBSA settings
 	public static Random random;
-	public static final int population_size = 400;
+	public static final int population_size = 200;
 	public static int dimension_size;
 	public static final int MAX_NUM_ITERATIONS = 100;
 

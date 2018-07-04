@@ -119,24 +119,20 @@ public class WSCProblem {
 			ehbsa.learnEHMfromPop();
 
 			// sample new candidate solutions from EHM
-			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSAWithLayer(WSCInitializer.population_size / 2,
+			List<WSCIndividual> pop_updated = ehbsa.sampling4EHBSAWithLayer(WSCInitializer.population_size,
 					WSCInitializer.random);
 
 			population.clear();
-
-			// add another half number of pop to population
-			population.addAll(archive);
-
+			
 			// add the population with pop_updated
 			for (int m = 0; m < pop_updated.size(); m++) {
 				WSCIndividual id_updated = pop_updated.get(m);
 				eval.aggregationAttribute(id_updated, id_updated.getDagRepresentation());
 				eval.calculateFitness(id_updated);
-				// System.out.println("Size: " +
-				// id_updated.getDagRepresentation().vertexSet().size() + "Print: "
-				// + id_updated.getDagRepresentation().toString());
-				population.add(id_updated);
 			}
+			
+			population.addAll(pop_updated);
+			
 			WSCInitializer.initTime.add(initialization);
 			initialization = (long) 0.0;
 			WSCInitializer.time.add(System.currentTimeMillis() - startTime);
